@@ -16,19 +16,17 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
 
-  final GetStorage _storage = GetStorage();
-
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       onInit: () async {
-        String token = await StorageService().getData(key: "token");
-        if (token != "null") {
-          if (kDebugMode) {
-            print("Token is: $token");
-          }
-          await StorageService().checkToken();
-        }
+        // String token = await StorageService().getData(key: "token");
+        // if (token != "null") {
+        //   if (kDebugMode) {
+        //     print("Token is: $token");
+        //   }
+        //   await StorageService().checkToken();
+        // }
       },
       debugShowCheckedModeBanner: false,
       title: Constants.appName,
@@ -37,8 +35,8 @@ class MyApp extends StatelessWidget {
         textTheme: GoogleFonts.latoTextTheme()
             .copyWith(bodyLarge: const TextStyle(fontWeight: FontWeight.bold)),
       ),
-      // home: HomePage(),
-      home: _storage.hasData("userId") ? const HomePage() : const LoginPage(),
+      home: HomePage(),
+      // home: _storage.hasData("userId") ? const HomePage() : const LoginPage(),
     );
   }
 }

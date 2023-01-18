@@ -125,7 +125,7 @@ class _EditTestScreenState extends State<EditTestScreen> {
                               return DropdownMenuItem<GetTestModel>(
                                 value: e,
                                 child: Text(
-                                    "(${e.testId}) ${e.testName}, ${e.courseId}"),
+                                    "(${e.testId}) ${e.testName}, ${e.groupCourse}"),
                               );
                             }).toList(),
                             onChanged: (value) {

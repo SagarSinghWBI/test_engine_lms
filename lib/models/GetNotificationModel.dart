@@ -1,44 +1,32 @@
-class GetNotificationsModel {
-  GetNotificationsModel({
-    this.notificationId,
-    this.notification,
-    this.fkCourseId,
-    this.instituteId,
-    this.teacherId,
-    this.studentId,
-    this.notificationDate,
-    this.notificationTime,
+class GetNotificationModel {
+  GetNotificationModel({
+    this.noticeId,
+    this.noticeDate,
+    this.noticeTime,
+    this.content,
+    this.institute,
   });
 
-  GetNotificationsModel.fromJson(dynamic json) {
-    notificationId = json['notificationId'];
-    notification = json['notification'];
-    fkCourseId = json['fkCourseId'];
-    instituteId = json['instituteId'];
-    teacherId = json['teacherId'];
-    studentId = json['studentId'];
-    notificationDate = json['notificationDate'];
-    notificationTime = json['notificationTime'];
+  GetNotificationModel.fromJson(dynamic json) {
+    noticeId = json['noticeId'];
+    noticeDate = json['noticeDate'];
+    noticeTime = json['noticeTime'];
+    content = json['content'];
+    institute = json['institute'];
   }
-  int? notificationId;
-  String? notification;
-  int? fkCourseId;
-  int? instituteId;
-  int? teacherId;
-  int? studentId;
-  String? notificationDate;
-  String? notificationTime;
+  int? noticeId;
+  String? noticeDate;
+  String? noticeTime;
+  String? content;
+  int? institute;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
-    map['notificationId'] = notificationId;
-    map['notification'] = notification;
-    map['fkCourseId'] = fkCourseId;
-    map['instituteId'] = instituteId;
-    map['teacherId'] = teacherId;
-    map['studentId'] = studentId;
-    map['notificationDate'] = notificationDate;
-    map['notificationTime'] = notificationTime;
+    map['noticeId'] = noticeId;
+    map['noticeDate'] = noticeDate;
+    map['noticeTime'] = noticeTime;
+    map['content'] = content;
+    map['institute'] = institute;
     return map;
   }
 }

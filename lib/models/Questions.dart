@@ -1,5 +1,6 @@
 class Questions {
   Questions({
+    this.questionId,
     this.question,
     this.questionExpression,
     this.option1,
@@ -11,10 +12,13 @@ class Questions {
     this.option4,
     this.expression4,
     this.correctOpt,
+    this.correctExpression,
     this.description,
+    this.testfield,
   });
 
   Questions.fromJson(dynamic json) {
+    questionId = json['questionId'];
     question = json['question'];
     questionExpression = json['questionExpression'];
     option1 = json['option1'];
@@ -26,8 +30,11 @@ class Questions {
     option4 = json['option4'];
     expression4 = json['expression4'];
     correctOpt = json['correctOpt'];
+    correctExpression = json['correctExpression'];
     description = json['description'];
+    testfield = json['testfield'];
   }
+  int? questionId;
   String? question;
   String? questionExpression;
   String? option1;
@@ -39,10 +46,13 @@ class Questions {
   String? option4;
   String? expression4;
   String? correctOpt;
+  String? correctExpression;
   String? description;
+  int? testfield;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
+    map['questionId'] = questionId;
     map['question'] = question;
     map['questionExpression'] = questionExpression;
     map['option1'] = option1;
@@ -54,7 +64,9 @@ class Questions {
     map['option4'] = option4;
     map['expression4'] = expression4;
     map['correctOpt'] = correctOpt;
+    map['correctExpression'] = correctExpression;
     map['description'] = description;
+    map['testfield'] = testfield;
     return map;
   }
 }

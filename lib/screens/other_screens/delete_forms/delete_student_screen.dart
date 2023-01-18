@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:test_engine_lms/controllers/auth_controller.dart';
+import 'package:test_engine_lms/controllers/dataController.dart';
 import 'package:test_engine_lms/controllers/test_controller.dart';
 import 'package:test_engine_lms/models/GetStudentsModel.dart';
 import 'package:test_engine_lms/models/GetTestModel.dart';
@@ -19,10 +20,11 @@ class _DeleteStudentScreenState extends State<DeleteStudentScreen> {
   GetStudentsModel? selectedModel;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   List<GetStudentsModel> allStudents = [];
+  var dataController = Get.put(DataController());
 
   getAllStudents() async {
     try {
-      allStudents = await AuthController().getAllStudents();
+      allStudents = await dataController.getAllStudents();
       setState(() {});
     } catch (e) {
       print("Error:$e");
@@ -115,8 +117,7 @@ class _DeleteStudentScreenState extends State<DeleteStudentScreen> {
                               items: allStudents.map((e) {
                                 return DropdownMenuItem<GetStudentsModel>(
                                   value: e,
-                                  child:
-                                  Text("(${e.studentId}) ${e.studentName}"),
+                                  child: Text("(${e.studentId}) ${e.userName}"),
                                 );
                               }).toList(),
                               onChanged: (value) {

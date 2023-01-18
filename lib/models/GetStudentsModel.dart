@@ -1,57 +1,71 @@
 class GetStudentsModel {
   GetStudentsModel({
     this.studentId,
-    this.studentName,
-    this.email,
+    this.userName,
+    this.password,
     this.mobile,
-    this.state,
-    this.country,
-    this.description,
-    this.optCoursesNames,
-    this.courses,
+    this.email,
+    this.imagePath,
+    this.imageName,
+    this.registrationDate,
+    this.institute,
+    this.groupCourse,
+    this.optcoursesIds,
   });
 
   GetStudentsModel.fromJson(dynamic json) {
     studentId = json['studentId'];
-    studentName = json['studentName'];
-    email = json['email'];
+    userName = json['userName'];
+    password = json['password'];
     mobile = json['mobile'];
-    state = json['state'];
-    country = json['country'];
-    description = json['description'];
-    optCoursesNames = json['optCoursesNames'] != null
-        ? json['optCoursesNames'].cast<String>()
-        : [];
-    if (json['courses'] != null) {
-      courses = [];
-      json['courses'].forEach((v) {
-        courses?.add(v);
+    email = json['email'];
+    imagePath = json['imagePath'];
+    imageName = json['imageName'];
+    registrationDate = json['registrationDate'];
+    institute = json['institute'];
+    if (json['groupCourse'] != null) {
+      groupCourse = [];
+      json['groupCourse'].forEach((v) {
+        groupCourse?.add(v);
+      });
+    }
+    if (json['optcoursesIds'] != null) {
+      optcoursesIds = [];
+      json['optcoursesIds'].forEach((v) {
+        optcoursesIds?.add(v);
       });
     }
   }
   int? studentId;
-  String? studentName;
-  String? email;
+  String? userName;
+  String? password;
   String? mobile;
-  String? state;
-  String? country;
-  String? description;
-  List<dynamic>? optCoursesNames;
-  List<dynamic>? courses;
+  String? email;
+  String? imagePath;
+  String? imageName;
+  String? registrationDate;
+  int? institute;
+  List<dynamic>? groupCourse;
+  List<dynamic>? optcoursesIds;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['studentId'] = studentId;
-    map['studentName'] = studentName;
-    map['email'] = email;
+    map['userName'] = userName;
+    map['password'] = password;
     map['mobile'] = mobile;
-    map['state'] = state;
-    map['country'] = country;
-    map['description'] = description;
-    map['optCoursesNames'] = optCoursesNames;
-    final courses = this.courses;
-    if (courses != null) {
-      map['courses'] = courses.map((v) => v.toJson()).toList();
+    map['email'] = email;
+    map['imagePath'] = imagePath;
+    map['imageName'] = imageName;
+    map['registrationDate'] = registrationDate;
+    map['institute'] = institute;
+    final groupCourse = this.groupCourse;
+    if (groupCourse != null) {
+      map['groupCourse'] = groupCourse.map((v) => v.toJson()).toList();
+    }
+    final optcoursesIds = this.optcoursesIds;
+    if (optcoursesIds != null) {
+      map['optcoursesIds'] = optcoursesIds.map((v) => v.toJson()).toList();
     }
     return map;
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:test_engine_lms/controllers/dataController.dart';
 import 'package:test_engine_lms/controllers/test_controller.dart';
 import 'package:test_engine_lms/models/GroupCategoryModel.dart';
 import 'package:test_engine_lms/models/GroupModel.dart';
@@ -17,12 +18,13 @@ class DeleteCourseGroupScreen extends StatefulWidget {
 class _DeleteCourseGroupScreenState extends State<DeleteCourseGroupScreen> {
   GroupModel? selectedModel;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  var dataController=Get.put(DataController());
 
   List<GroupModel> allCoursesGroup = [];
 
   getAllCourses() async {
     try {
-      allCoursesGroup = await TestController().getAllCourses();
+      allCoursesGroup = await dataController.getAllGroups();
       setState(() {});
     } catch (e) {
       print("Error:$e");
@@ -116,7 +118,7 @@ class _DeleteCourseGroupScreenState extends State<DeleteCourseGroupScreen> {
                                 return DropdownMenuItem<GroupModel>(
                                   value: e,
                                   child:
-                                      Text("(${e.courseId}) ${e.courseName}"),
+                                      Text("(${e.groupId}) ${e.groupName}"),
                                 );
                               }).toList(),
                               onChanged: (value) {

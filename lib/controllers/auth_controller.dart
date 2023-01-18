@@ -44,36 +44,36 @@ class AuthController {
   }
 
   ///get all students
-  Future<List<GetStudentsModel>> getAllStudents() async {
-    List<GetStudentsModel> modelList = [];
-    try {
-      var headers = await StorageService().getHeaders();
-      await dio_package.Dio()
-          .get("${Constants.tempUrl}/getAllStudents",
-              options: dio_package.Options(headers: headers))
-          .then((value) {
-        if (value.statusCode == 200) {
-          modelList.clear();
-          value.data["students"].forEach((element) {
-            modelList.add(GetStudentsModel(
-              studentName: element["studentName"].toString(),
-              description: element["description"].toString(),
-              email: element["email"].toString(),
-              mobile: element["mobile"].toString(),
-              state: element["state"].toString(),
-              country: element["country"].toString(),
-              studentId: int.parse(element["studentId"].toString()),
-              courses: element["courses"] as List<dynamic>?,
-              optCoursesNames: element["optCoursesNames"] as List<dynamic>?,
-            ));
-          });
-        }
-      });
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error while getting students:$e");
-      }
-    }
-    return modelList;
-  }
+  // Future<List<GetStudentsModel>> getAllStudents() async {
+  //   List<GetStudentsModel> modelList = [];
+  //   try {
+  //     var headers = await StorageService().getHeaders();
+  //     await dio_package.Dio()
+  //         .get("${Constants.tempUrl}/getAllStudents",
+  //             options: dio_package.Options(headers: headers))
+  //         .then((value) {
+  //       if (value.statusCode == 200) {
+  //         modelList.clear();
+  //         value.data["students"].forEach((element) {
+  //           modelList.add(GetStudentsModel(
+  //             userName: element["studentName"].toString(),
+  //             description: element["description"].toString(),
+  //             email: element["email"].toString(),
+  //             mobile: element["mobile"].toString(),
+  //             state: element["state"].toString(),
+  //             country: element["country"].toString(),
+  //             studentId: int.parse(element["studentId"].toString()),
+  //             courses: element["courses"] as List<dynamic>?,
+  //             optCoursesNames: element["optCoursesNames"] as List<dynamic>?,
+  //           ));
+  //         });
+  //       }
+  //     });
+  //   } catch (e) {
+  //     if (kDebugMode) {
+  //       print("Error while getting students:$e");
+  //     }
+  //   }
+  //   return modelList;
+  // }
 }

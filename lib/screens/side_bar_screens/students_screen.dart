@@ -2,6 +2,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:test_engine_lms/controllers/auth_controller.dart';
+import 'package:test_engine_lms/controllers/dataController.dart';
 import 'package:test_engine_lms/models/GetStudentsModel.dart';
 import 'package:test_engine_lms/screens/other_screens/add_forms/add_student_screen.dart';
 import 'package:test_engine_lms/screens/other_screens/delete_forms/delete_student_screen.dart';
@@ -18,6 +19,8 @@ class StudentScreen extends StatefulWidget {
 }
 
 class _StudentScreenState extends State<StudentScreen> {
+  var dataController = Get.put(DataController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,6 +88,16 @@ class _StudentScreenState extends State<StudentScreen> {
                         Row(
                           children: [
                             IconButton(
+                                tooltip: "Refresh",
+                                onPressed: () {
+                                  setState(() {});
+                                },
+                                icon: const Icon(
+                                  Icons.refresh,
+                                  size: 18,
+                                  color: Colors.white,
+                                )),
+                            IconButton(
                                 tooltip: "Assign courses",
                                 onPressed: () {
                                   Get.dialog(const AssignStudentCourseScreen());
@@ -120,7 +133,7 @@ class _StudentScreenState extends State<StudentScreen> {
                     ),
                     Expanded(
                       child: FutureBuilder(
-                        future: AuthController().getAllStudents(),
+                        future: dataController.getAllStudents(),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -164,8 +177,8 @@ class _StudentScreenState extends State<StudentScreen> {
                                   return DataRow(cells: [
                                     DataCell(
                                         Text(data[index].studentId.toString())),
-                                    DataCell(Text(
-                                        data[index].studentName.toString())),
+                                    DataCell(
+                                        Text(data[index].userName.toString())),
                                     DataCell(
                                         Text(data[index].mobile.toString())),
                                     DataCell(

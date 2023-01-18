@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:test_engine_lms/controllers/auth_controller.dart';
+import 'package:test_engine_lms/controllers/dataController.dart';
 import 'package:test_engine_lms/models/GetStudentsModel.dart';
 import 'package:test_engine_lms/utils/constants.dart';
 import 'package:test_engine_lms/utils/ui_widgets.dart';
@@ -22,11 +23,11 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
   TextEditingController emailController = TextEditingController();
   List<GetStudentsModel> studentList = [];
   GetStudentsModel? selectedModel;
-
+  var dataController = Get.put(DataController());
 
   getAllStudents() async {
     try {
-      studentList = await AuthController().getAllStudents();
+      studentList = await dataController.getAllStudents();
       setState(() {});
     } catch (e) {
       print("Error is here:$e");
@@ -62,7 +63,8 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
           width: Get.width / 1.6,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-              color: Colors.white, borderRadius: BorderRadius.circular(20),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
             children: [
@@ -74,7 +76,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                       Container(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            "Add a Student",
+                            "Edit a Student",
                             style: TextStyle(
                               color: Constants.primaryColor,
                               fontWeight: FontWeight.bold,
@@ -95,14 +97,14 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                   ),
                   const Spacer(),
                   IconButton(
-                      tooltip: "Cancel",
-                      onPressed: () {
-                        Get.back();
-                      },
-                      icon: const Icon(
-                        Icons.cancel,
-                        color: Colors.red,
-                      ),
+                    tooltip: "Cancel",
+                    onPressed: () {
+                      Get.back();
+                    },
+                    icon: const Icon(
+                      Icons.cancel,
+                      color: Colors.red,
+                    ),
                   ),
                 ],
               ),
@@ -114,7 +116,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const SizedBox(height:5),
+                        const SizedBox(height: 5),
                         DropdownButtonFormField(
                             validator: (value) {
                               if (value == null) {
@@ -129,8 +131,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                             items: studentList.map((e) {
                               return DropdownMenuItem<GetStudentsModel>(
                                 value: e,
-                                child:
-                                    Text("(${e.studentId}) ${e.studentName}"),
+                                child: Text("(${e.studentId}) ${e.userName}"),
                               );
                             }).toList(),
                             onChanged: (value) {
@@ -138,9 +139,9 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                               setState(() {});
 
                               userNameController.text =
-                                  selectedModel!.studentName!;
+                                  selectedModel!.userName!;
                               studentNameController.text =
-                                  selectedModel!.studentName!;
+                                  selectedModel!.userName!;
                               mobileController.text = selectedModel!.mobile!;
                               emailController.text = selectedModel!.email!;
                             }),
@@ -159,51 +160,51 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                           ),
                         ),
                         const SizedBox(height: 15),
-                        TextFormField(
-                          controller: passwordController,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "This Field is mandatory to fill.";
-                            } else if (value.length < 7) {
-                              return "Password must be more than 7 digits.";
-                            }
-                            return null;
-                          },
-                          decoration: getInputDecoration(
-                            labelText: "New Password",
-                            hintText: "Ex: Password@#%7",
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "This Field is mandatory to fill.";
-                            } else if (value.trim() !=
-                                passwordController.text.trim()) {
-                              return "Confirm password doesn't match.";
-                            }
-                            return null;
-                          },
-                          decoration: getInputDecoration(
-                            labelText: "Confirm Password",
-                            hintText: "Ex: Password@#%7",
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: studentNameController,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "This Field is mandatory to fill.";
-                            }
-                            return null;
-                          },
-                          decoration: getInputDecoration(
-                              labelText: "New Student Name",
-                              hintText: "Ex: Sagar Singh"),
-                        ),
-                        const SizedBox(height: 15),
+                        // TextFormField(
+                        //   controller: passwordController,
+                        //   validator: (value) {
+                        //     if (value!.isEmpty) {
+                        //       return "This Field is mandatory to fill.";
+                        //     } else if (value.length < 7) {
+                        //       return "Password must be more than 7 digits.";
+                        //     }
+                        //     return null;
+                        //   },
+                        //   decoration: getInputDecoration(
+                        //     labelText: "New Password",
+                        //     hintText: "Ex: Password@#%7",
+                        //   ),
+                        // ),
+                        // const SizedBox(height: 15),
+                        // TextFormField(
+                        //   validator: (value) {
+                        //     if (value!.isEmpty) {
+                        //       return "This Field is mandatory to fill.";
+                        //     } else if (value.trim() !=
+                        //         passwordController.text.trim()) {
+                        //       return "Confirm password doesn't match.";
+                        //     }
+                        //     return null;
+                        //   },
+                        //   decoration: getInputDecoration(
+                        //     labelText: "Confirm Password",
+                        //     hintText: "Ex: Password@#%7",
+                        //   ),
+                        // ),
+                        // const SizedBox(height: 15),
+                        // TextFormField(
+                        //   controller: studentNameController,
+                        //   validator: (value) {
+                        //     if (value!.isEmpty) {
+                        //       return "This Field is mandatory to fill.";
+                        //     }
+                        //     return null;
+                        //   },
+                        //   decoration: getInputDecoration(
+                        //       labelText: "New Student Name",
+                        //       hintText: "Ex: Sagar Singh"),
+                        // ),
+                        // const SizedBox(height: 15),
                         TextFormField(
                           controller: mobileController,
                           inputFormatters: <TextInputFormatter>[
@@ -217,7 +218,8 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                             return null;
                           },
                           decoration: getInputDecoration(
-                              labelText: "New Mobile Number", hintText: "Ex: 9876543210"),
+                              labelText: "New Mobile Number",
+                              hintText: "Ex: 9876543210"),
                         ),
                         const SizedBox(height: 15),
                         TextFormField(
@@ -232,8 +234,8 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                             return null;
                           },
                           decoration: getInputDecoration(
-                              labelText: "New Email",
-                              hintText: "Ex: email123@gmail.com",
+                            labelText: "New Email",
+                            hintText: "Ex: email123@gmail.com",
                           ),
                         ),
                         const SizedBox(height: 20),

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:intl/intl.dart';
 import 'package:math_keyboard/math_keyboard.dart';
+import 'package:test_engine_lms/controllers/dataController.dart';
 import 'package:test_engine_lms/controllers/test_controller.dart';
 import 'package:test_engine_lms/models/GroupModel.dart';
 import 'package:test_engine_lms/models/Questions.dart';
@@ -19,6 +21,11 @@ class AddTestScreen extends StatefulWidget {
 
 class _AddTestScreenState extends State<AddTestScreen> {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  var dataController = Get.put(DataController());
+  TextEditingController endDateController = TextEditingController();
+  TextEditingController testNameController = TextEditingController();
+  TextEditingController totalTimeController = TextEditingController();
+  TextEditingController showQuestionsController = TextEditingController();
 
   List<GroupModel> coursesList = [];
   GroupModel? selectedModel;
@@ -27,7 +34,7 @@ class _AddTestScreenState extends State<AddTestScreen> {
 
   getAllCourses() async {
     try {
-      coursesList = await TestController().getAllCourses();
+      coursesList = await dataController.getAllGroups();
       setState(() {});
     } catch (e) {
       if (kDebugMode) {
@@ -41,6 +48,16 @@ class _AddTestScreenState extends State<AddTestScreen> {
     // TODO: implement initState
     super.initState();
     getAllCourses();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    endDateController.dispose();
+    testNameController.dispose();
+    totalTimeController.dispose();
+    showQuestionsController.dispose();
   }
 
   @override
@@ -118,7 +135,7 @@ class _AddTestScreenState extends State<AddTestScreen> {
                             items: coursesList.map((e) {
                               return DropdownMenuItem<GroupModel>(
                                 value: e,
-                                child: Text(e.courseName.toString()),
+                                child: Text(e.groupName.toString()),
                               );
                             }).toList(),
                             onChanged: (value) {
@@ -129,6 +146,7 @@ class _AddTestScreenState extends State<AddTestScreen> {
 
                         ///test name field
                         TextFormField(
+                          controller: testNameController,
                           validator: (value) {
                             if (value!.isEmpty) {
                               return "This field is mandatory to fill.";
@@ -180,8 +198,52 @@ class _AddTestScreenState extends State<AddTestScreen> {
                         ),
                         const SizedBox(height: 20),
 
+                        ///showed questions
+                        TextFormField(
+                          controller: showQuestionsController,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          keyboardType: TextInputType.number,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return "This field is mandatory to fill.";
+                            } else if (int.parse(value) > totalQuestions) {
+                              return "Showed Questions cannot be more than Total Questions.";
+                            }
+                            return null;
+                          },
+                          // onSaved: (String? value) {
+                          //   print("here>>>>>>>");
+                          //
+                          //   if (value != "0" && value!.isNotEmpty) {
+                          //     questionsList.clear();
+                          //     for (int i = 0; i < int.parse(value); i++) {
+                          //       if (kDebugMode) {
+                          //         print("${int.parse(value)} ,,, ${i + 1}");
+                          //       }
+                          //       questionsList.add(Questions());
+                          //     }
+                          //     setState(() {
+                          //       totalQuestions = int.parse(value);
+                          //     });
+                          //   } else {
+                          //     setState(() {
+                          //       totalQuestions = 0;
+                          //     });
+
+                          //   }
+                          // },
+                          decoration: getInputDecoration(
+                            labelText: "Total Showed Questions",
+                            hintText: "Ex: 10, 50, 100, 200 etc.",
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
                         ///total time
                         TextFormField(
+                          controller: totalTimeController,
                           inputFormatters: <TextInputFormatter>[
                             FilteringTextInputFormatter.digitsOnly
                           ],
@@ -198,6 +260,47 @@ class _AddTestScreenState extends State<AddTestScreen> {
                           ),
                         ),
                         const SizedBox(height: 20),
+
+                        ///End Date
+                        GestureDetector(
+                          onTap: () async {
+                            DateTime? pickedDate = await showDatePicker(
+                                context: context, //context of current state
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(
+                                    2000), //DateTime.now() - not to allow to choose before today.
+                                lastDate: DateTime(2101));
+
+                            if (pickedDate != null) {
+                              print(
+                                  pickedDate); //pickedDate output format => 2021-03-10 00:00:00.000
+                              String formattedDate =
+                                  DateFormat('yyyy-MM-dd').format(pickedDate);
+                              print(
+                                  formattedDate); //formatted date output using intl package =>  2021-03-16
+                              endDateController.text = formattedDate;
+                            } else {
+                              print("Date is not selected");
+                            }
+                          },
+                          child: TextFormField(
+                            controller: endDateController,
+                            enabled: false,
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return "This field is mandatory to fill.";
+                              }
+                              return null;
+                            },
+                            decoration: getInputDecoration(
+                              labelText: "End Date ",
+                              hintText: "yyyy-MM-dd",
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+
                         ElevatedButton(
                             style: const ButtonStyle(
                                 backgroundColor:
@@ -508,12 +611,25 @@ class _AddTestScreenState extends State<AddTestScreen> {
                           MaterialStatePropertyAll(Constants.primaryColor),
                     ),
                     onPressed: () {
+                      formKey.currentState?.save();
                       if (formKey.currentState!.validate()) {
                         ///hit api here
-                        print("Questions List:${questionsList.asMap()}");
-                        print("1:${questionsList[0].toJson()}");
-                        print("2:${questionsList[1].toJson()}");
-                        print("3:${questionsList[2].toJson()}");
+                        // TestController().addTest(
+                        //   totalTime: int.parse(totalTimeController.text),
+                        //   endDate: endDateController.text,
+                        //   onSuccess: () {},
+                        //   testName: testNameController.text,
+                        //   totalQuestions: totalQuestions,
+                        //   totalMarks: totalQuestions,
+                        //   showedQuestion:
+                        //       int.parse(showQuestionsController.text),
+                        //   groupId: selectedModel!.groupId!,
+                        // );
+                        /// ///////////////////
+                        // print("Questions List:${questionsList.asMap()}");
+                        // print("1:${questionsList[0].toJson()}");
+                        // print("2:${questionsList[1].toJson()}");
+                        // print("3:${questionsList[2].toJson()}");
                       }
                     },
                     icon: const Icon(

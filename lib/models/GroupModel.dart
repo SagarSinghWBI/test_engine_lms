@@ -1,60 +1,48 @@
 class GroupModel {
   GroupModel({
-    this.courseId,
-    this.courseName,
-    this.description,
-    this.startDate,
-    this.endDate,
-    this.price,
-    this.discount,
-    this.imageFile,
-    this.imageFileName,
-    this.category,
-    this.teacher,
-    this.paid,
+    this.groupId,
+    this.groupName,
+    this.institute,
+    this.multipleTests,
+    this.students,
   });
 
   GroupModel.fromJson(dynamic json) {
-    courseId = json['courseId'];
-    courseName = json['courseName'];
-    description = json['description'];
-    startDate = json['startDate'];
-    endDate = json['endDate'];
-    price = json['price'];
-    discount = json['discount'];
-    imageFile = json['imageFile'];
-    imageFileName = json['imageFileName'];
-    category = json['category'];
-    teacher = json['teacher'];
-    paid = json['paid'];
+    groupId = json['groupId'];
+    groupName = json['groupName'];
+    institute = json['institute'];
+    if (json['multipleTests'] != null) {
+      multipleTests = [];
+      json['multipleTests'].forEach((v) {
+        multipleTests?.add(v);
+      });
+    }
+    if (json['students'] != null) {
+      students = [];
+      json['students'].forEach((v) {
+        students?.add(v);
+      });
+    }
   }
-  int? courseId;
-  String? courseName;
-  String? description;
-  String? startDate;
-  String? endDate;
-  double? price;
-  int? discount;
-  String? imageFile;
-  String? imageFileName;
-  String? category;
-  String? teacher;
-  bool? paid;
+  int? groupId;
+  String? groupName;
+  int? institute;
+  List<dynamic>? multipleTests;
+  List<dynamic>? students;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
-    map['courseId'] = courseId;
-    map['courseName'] = courseName;
-    map['description'] = description;
-    map['startDate'] = startDate;
-    map['endDate'] = endDate;
-    map['price'] = price;
-    map['discount'] = discount;
-    map['imageFile'] = imageFile;
-    map['imageFileName'] = imageFileName;
-    map['category'] = category;
-    map['teacher'] = teacher;
-    map['paid'] = paid;
+    map['groupId'] = groupId;
+    map['groupName'] = groupName;
+    map['institute'] = institute;
+    final multipleTests = this.multipleTests;
+    if (multipleTests != null) {
+      map['multipleTests'] = multipleTests.map((v) => v.toJson()).toList();
+    }
+    final students = this.students;
+    if (students != null) {
+      map['students'] = students.map((v) => v.toJson()).toList();
+    }
     return map;
   }
 }

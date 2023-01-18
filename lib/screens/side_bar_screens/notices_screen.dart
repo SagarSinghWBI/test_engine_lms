@@ -1,6 +1,8 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:test_engine_lms/controllers/dataController.dart';
 import 'package:test_engine_lms/controllers/test_controller.dart';
 import 'package:test_engine_lms/models/GetNotificationModel.dart';
 import 'package:test_engine_lms/screens/other_screens/add_forms/add_notice_screen.dart';
@@ -15,6 +17,8 @@ class NoticeScreen extends StatefulWidget {
 }
 
 class _NoticeScreenState extends State<NoticeScreen> {
+  var dataController = Get.put(DataController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,18 +72,66 @@ class _NoticeScreenState extends State<NoticeScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Container(
-                      alignment: Alignment.centerLeft,
-                      margin: const EdgeInsets.only(left: 10, top: 5),
-                      child: const Text("Available Notices",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.cyanAccent,
-                          )),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          margin: const EdgeInsets.only(left: 10, top: 5),
+                          child: const Text("Available Students",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.cyanAccent)),
+                        ),
+                        Row(
+                          children: [
+                            IconButton(
+                                tooltip: "Refresh",
+                                onPressed: () {
+                                  setState(() {});
+                                },
+                                icon: const Icon(
+                                  Icons.refresh,
+                                  size: 18,
+                                  color: Colors.white,
+                                )),
+                            // IconButton(
+                            //     tooltip: "Assign courses",
+                            //     onPressed: () {
+                            //       Get.dialog(const AssignStudentCourseScreen());
+                            //     },
+                            //     icon: const Icon(
+                            //       Icons.add_card_rounded,
+                            //       size: 18,
+                            //       color: Colors.white,
+                            //     )),
+                            // IconButton(
+                            //     tooltip: "Edit Student Data",
+                            //     onPressed: () {
+                            //       Get.dialog(const EditStudentScreen());
+                            //     },
+                            //     icon: const Icon(
+                            //       Icons.edit,
+                            //       size: 18,
+                            //       color: Colors.white,
+                            //     )),
+                            // IconButton(
+                            //     tooltip: "Delete Students",
+                            //     onPressed: () {
+                            //       Get.dialog(const DeleteStudentScreen());
+                            //     },
+                            //     icon: const Icon(
+                            //       Icons.delete,
+                            //       color: Colors.white,
+                            //       size: 18,
+                            //     )),
+                          ],
+                        ),
+                      ],
                     ),
                     Expanded(
                       child: FutureBuilder(
-                        future: TestController().getAllNotifications(),
+                        future: dataController.getAllNotifications(),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -87,8 +139,8 @@ class _NoticeScreenState extends State<NoticeScreen> {
                                 child: CircularProgressIndicator());
                           } else if (snapshot.connectionState ==
                               ConnectionState.done) {
-                            List<GetNotificationsModel> data =
-                                snapshot.data as List<GetNotificationsModel>;
+                            List<GetNotificationModel> data =
+                                snapshot.data as List<GetNotificationModel>;
 
                             if (data.isEmpty) {
                               return Center(
@@ -117,36 +169,44 @@ class _NoticeScreenState extends State<NoticeScreen> {
                                   DataColumn2(label: Text("ID")),
                                   DataColumn2(label: Text("Notification")),
                                   DataColumn2(label: Text("Date")),
+                                  DataColumn2(label: Text("Time")),
                                   DataColumn2(label: Text("View")),
-                                  DataColumn2(label: Text("Delete")),
+                                  // DataColumn2(label: Text("Delete")),
                                 ],
                                 rows: List.generate(data.length, (index) {
                                   return DataRow(cells: [
+                                    DataCell(
+                                        Text(data[index].noticeId.toString())),
                                     DataCell(Text(
-                                        data[index].notificationId.toString())),
+                                      data[index].content.toString(),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    )),
+                                    DataCell(Text(DateFormat("dd-MM-yyyy")
+                                        .format(DateTime.parse(data[index]
+                                            .noticeDate
+                                            .toString())))),
                                     DataCell(Text(
-                                        data[index].notification.toString())),
-                                    DataCell(Text(data[index]
-                                        .notificationDate
-                                        .toString())),
+                                        data[index].noticeTime.toString())),
                                     DataCell(IconButton(
                                       tooltip: "View",
                                       onPressed: () {
                                         Get.defaultDialog(
-                                          title: "Notification",
-                                          titleStyle: TextStyle(color: Constants.primaryColor,fontWeight: FontWeight.bold),
-                                          content: Center(
-                                            child: Text(
-                                              data[index].notification.toString(),
-                                              textAlign: TextAlign.center,
+                                            title: "Notification",
+                                            titleStyle: TextStyle(
+                                                color: Constants.primaryColor,
+                                                fontWeight: FontWeight.bold),
+                                            content: Center(
+                                              child: Text(
+                                                data[index].content.toString(),
+                                                textAlign: TextAlign.center,
+                                              ),
                                             ),
-                                          ),
-                                          buttonColor: Constants.primaryColor,
-                                          confirmTextColor: Colors.white,
-                                          onConfirm: (){
-                                            Get.back();
-                                          }
-                                        );
+                                            buttonColor: Constants.primaryColor,
+                                            confirmTextColor: Colors.white,
+                                            onConfirm: () {
+                                              Get.back();
+                                            });
                                       },
                                       icon: const Icon(
                                         Icons.remove_red_eye,
@@ -154,16 +214,16 @@ class _NoticeScreenState extends State<NoticeScreen> {
                                         color: Colors.white,
                                       ),
                                     )),
-                                    DataCell(
-                                      IconButton(
-                                          tooltip: "Delete",
-                                          onPressed: () {},
-                                          icon: const Icon(
-                                            Icons.delete,
-                                            size: 18,
-                                            color: Colors.white,
-                                          )),
-                                    ),
+                                    // DataCell(
+                                    //   IconButton(
+                                    //       tooltip: "Delete",
+                                    //       onPressed: () {},
+                                    //       icon: const Icon(
+                                    //         Icons.delete,
+                                    //         size: 18,
+                                    //         color: Colors.white,
+                                    //       )),
+                                    // ),
                                   ]);
                                 }),
                               );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:test_engine_lms/controllers/dataController.dart';
 import 'package:test_engine_lms/models/sidebar_model.dart';
 import 'package:test_engine_lms/screens/login_screen.dart';
 import 'package:test_engine_lms/screens/side_bar_screens/dashboard_screen.dart';
@@ -59,6 +60,13 @@ class _HomePageState extends State<HomePage> {
       assetsIconPath: "lib/assets/logout.png",
     ),
   ];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Get.put(DataController());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +157,7 @@ class _HomePageState extends State<HomePage> {
                     ),
 
                     ///institute name
-                     Text("Institute Name",
+                    Text("Institute Name",
                         style: TextStyle(
                           color: Constants.textColor,
                           fontWeight: FontWeight.bold,

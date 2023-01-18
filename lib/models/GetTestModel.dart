@@ -1,3 +1,5 @@
+import 'Questions.dart';
+
 class GetTestModel {
   GetTestModel({
     this.testId,
@@ -7,7 +9,8 @@ class GetTestModel {
     this.totalQuestions,
     this.totalMarks,
     this.totalTime,
-    this.courseId,
+    this.showedQuestion,
+    this.groupCourse,
     this.questions,
   });
 
@@ -19,11 +22,12 @@ class GetTestModel {
     totalQuestions = json['totalQuestions'];
     totalMarks = json['totalMarks'];
     totalTime = json['totalTime'];
-    courseId = json['courseId'];
+    showedQuestion = json['showedQuestion'];
+    groupCourse = json['groupCourse'];
     if (json['questions'] != null) {
       questions = [];
       json['questions'].forEach((v) {
-        questions?.add(v);
+        questions?.add(Questions.fromJson(v));
       });
     }
   }
@@ -34,8 +38,9 @@ class GetTestModel {
   int? totalQuestions;
   int? totalMarks;
   int? totalTime;
-  int? courseId;
-  List<dynamic>? questions;
+  int? showedQuestion;
+  int? groupCourse;
+  List<Questions>? questions;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -46,7 +51,8 @@ class GetTestModel {
     map['totalQuestions'] = totalQuestions;
     map['totalMarks'] = totalMarks;
     map['totalTime'] = totalTime;
-    map['courseId'] = courseId;
+    map['showedQuestion'] = showedQuestion;
+    map['groupCourse'] = groupCourse;
     final questions = this.questions;
     if (questions != null) {
       map['questions'] = questions.map((v) => v.toJson()).toList();

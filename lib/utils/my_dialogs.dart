@@ -4,6 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_engine_lms/utils/constants.dart';
 
+getSuccessDialogue({required String message}) {
+  Get.defaultDialog(
+    title: "Success",
+    titleStyle: const TextStyle(color: Colors.green,fontWeight: FontWeight.bold),
+    buttonColor: Constants.primaryColor,
+    confirmTextColor: Colors.white,
+    content: Center(
+      child: Text(
+        message,
+        style: TextStyle(color: Constants.primaryColor),
+        textAlign: TextAlign.center,
+      ),
+    ),
+    onConfirm: () {
+      Get.back();
+    },
+  );
+}
+
 getLoadingDialogue({required String title}) {
   Get.defaultDialog(
     barrierDismissible: false,

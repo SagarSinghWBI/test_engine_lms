@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:test_engine_lms/controllers/dataController.dart';
 import 'package:test_engine_lms/utils/constants.dart';
 
 class AddNoticeScreen extends StatefulWidget {
@@ -10,14 +11,15 @@ class AddNoticeScreen extends StatefulWidget {
 }
 
 class _AddNoticeScreenState extends State<AddNoticeScreen> {
-  TextEditingController categoryName = TextEditingController();
+  TextEditingController contentController = TextEditingController();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  var dataController = Get.put(DataController());
 
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    categoryName.dispose();
+    contentController.dispose();
   }
 
   @override
@@ -92,7 +94,7 @@ class _AddNoticeScreenState extends State<AddNoticeScreen> {
                               }
                               return null;
                             },
-                            controller: categoryName,
+                            controller: contentController,
                             decoration: InputDecoration(
                                 labelStyle:
                                     TextStyle(color: Constants.primaryColor),
@@ -124,6 +126,11 @@ class _AddNoticeScreenState extends State<AddNoticeScreen> {
                         onPressed: () {
                           if (formKey.currentState!.validate()) {
                             ///hit api here
+                            dataController.addNotice(
+                                content: contentController.text,
+                                onSuccess: () {
+                                  contentController.text = "";
+                                });
                           }
                         },
                         icon: const Icon(

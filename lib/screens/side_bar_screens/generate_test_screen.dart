@@ -84,6 +84,17 @@ class _GenerateTestScreenState extends State<GenerateTestScreen> {
                         Row(
                           children: [
                             IconButton(
+                                tooltip: "Refresh",
+                                onPressed: () {
+                                  setState(() {});
+                                  // Get.dialog(const DeleteTestScreen());
+                                },
+                                icon: const Icon(
+                                  Icons.refresh,
+                                  size: 18,
+                                  color: Colors.white,
+                                )),
+                            IconButton(
                               tooltip: "Edit Tests",
                               onPressed: () {
                                 Get.dialog(const EditTestScreen());
@@ -161,7 +172,8 @@ class _GenerateTestScreenState extends State<GenerateTestScreen> {
                                         data[index].totalQuestions.toString())),
                                     DataCell(Text(
                                         data[index].totalMarks.toString())),
-                                    DataCell(Text(data[index].startDate.toString())),
+                                    DataCell(
+                                        Text(data[index].startDate.toString())),
                                   ]);
                                 }),
                               );

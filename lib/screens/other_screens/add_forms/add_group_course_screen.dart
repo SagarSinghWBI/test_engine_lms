@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:test_engine_lms/controllers/dataController.dart';
 import 'package:test_engine_lms/controllers/test_controller.dart';
 import 'package:test_engine_lms/models/GroupCategoryModel.dart';
 import 'package:test_engine_lms/utils/constants.dart';
@@ -13,34 +14,35 @@ class AddGroupCourseScreen extends StatefulWidget {
 }
 
 class _AddGroupCourseScreenState extends State<AddGroupCourseScreen> {
-  TextEditingController categoryName = TextEditingController();
+  TextEditingController courseName = TextEditingController();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  GroupCategoryModel? selectedModel;
+  var dataController = Get.put(DataController());
+  // GroupCategoryModel? selectedModel;
 
-  List<GroupCategoryModel> categoryList = [];
-
-  getAllGroupCategories() async {
-    try {
-      categoryList = await TestController().getAllCategories();
-      setState(() {});
-      print("Category List:${categoryList.asMap()}");
-    } catch (e) {
-      print("Error is here:$e");
-    }
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    getAllGroupCategories();
-  }
+  // List<GroupCategoryModel> categoryList = [];
+  //
+  // getAllGroupCategories() async {
+  //   try {
+  //     categoryList = await TestController().getAllCategories();
+  //     setState(() {});
+  //     print("Category List:${categoryList.asMap()}");
+  //   } catch (e) {
+  //     print("Error is here:$e");
+  //   }
+  // }
+  //
+  // @override
+  // void initState() {
+  //   // TODO: implement initState
+  //   super.initState();
+  //   getAllGroupCategories();
+  // }
 
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    categoryName.dispose();
+    courseName.dispose();
   }
 
   @override
@@ -50,7 +52,7 @@ class _AddGroupCourseScreenState extends State<AddGroupCourseScreen> {
       body: Center(
         child: Container(
           alignment: Alignment.center,
-          height: Get.height / 1.6,
+          height: Get.height / 2.3,
           width: Get.width / 1.6,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -98,71 +100,70 @@ class _AddGroupCourseScreenState extends State<AddGroupCourseScreen> {
               ),
               const SizedBox(height: 20),
               Expanded(
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        DropdownButtonFormField(
-                            validator: (value) {
-                              if (value == null) {
-                                return "Please choose a Group Category!";
-                              }
-                              return null;
-                            },
-                            isDense: true,
-                            decoration: getInputDecoration(
-                                labelText: "Group Category", hintText: ""),
-                            items: categoryList.map((e) {
-                              return DropdownMenuItem<GroupCategoryModel>(
-                                value: e,
-                                child: Text(e.categoryName.toString()),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              selectedModel = value;
-                              setState(() {});
-                            }),
-                        const SizedBox(height: 20),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // DropdownButtonFormField(
+                      //     validator: (value) {
+                      //       if (value == null) {
+                      //         return "Please choose a Group Category!";
+                      //       }
+                      //       return null;
+                      //     },
+                      //     isDense: true,
+                      //     decoration: getInputDecoration(
+                      //         labelText: "Group Category", hintText: ""),
+                      //     items: categoryList.map((e) {
+                      //       return DropdownMenuItem<GroupCategoryModel>(
+                      //         value: e,
+                      //         child: Text(e.categoryName.toString()),
+                      //       );
+                      //     }).toList(),
+                      //     onChanged: (value) {
+                      //       selectedModel = value;
+                      //       setState(() {});
+                      //     }),
+                      // const SizedBox(height: 20),
 
-                        ///course field
-                        TextFormField(
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "This field is mandatory to fill.";
-                            }
-                            return null;
-                          },
-                          decoration: getInputDecoration(
-                              labelText: "Course Group Name",
-                              hintText:
-                                  "Ex: Web Development, Communication, Economics etc."),
-                        ),
-                        const SizedBox(height: 20),
-
-                        ///course group description
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: TextFormField(
-                            maxLines: 5,
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "This field is mandatory to fill.";
-                              }
-                              return null;
-                            },
-                            decoration: getInputDecoration(
-                              labelText: "Group Description",
-                              hintText:
-                                  "Ex: A course description is a brief summary of the significant learning experiences for a course.",
-                              isMaxLines: true,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                      ],
-                    ),
+                      ///course field
+                      TextFormField(
+                        controller: courseName,
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return "This field is mandatory to fill.";
+                          }
+                          return null;
+                        },
+                        decoration: getInputDecoration(
+                            labelText: "Group Name",
+                            hintText:
+                                "Ex:Management, Web Development, Communication, Economics etc."),
+                      ),
+                      const SizedBox(height: 20),
+                      //
+                      // ///course group description
+                      // Padding(
+                      //   padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      //   child: TextFormField(
+                      //     maxLines: 5,
+                      //     validator: (value) {
+                      //       if (value!.isEmpty) {
+                      //         return "This field is mandatory to fill.";
+                      //       }
+                      //       return null;
+                      //     },
+                      //     decoration: getInputDecoration(
+                      //       labelText: "Group Description",
+                      //       hintText:
+                      //           "Ex: A course description is a brief summary of the significant learning experiences for a course.",
+                      //       isMaxLines: true,
+                      //     ),
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 15),
+                    ],
                   ),
                 ),
               ),
@@ -176,13 +177,18 @@ class _AddGroupCourseScreenState extends State<AddGroupCourseScreen> {
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
                         ///hit api here
+                        dataController.addGroup(
+                            groupName: courseName.text,
+                            onSuccess: () {
+                              courseName.text = "";
+                            });
                       }
                     },
                     icon: const Icon(
                       Icons.add,
                       color: Colors.white,
                     ),
-                    label: const Text("Add Group Category")),
+                    label: const Text("Add this Group")),
               ),
             ],
           ),

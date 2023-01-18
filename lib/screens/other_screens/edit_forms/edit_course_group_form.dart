@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:test_engine_lms/controllers/dataController.dart';
 import 'package:test_engine_lms/controllers/test_controller.dart';
 import 'package:test_engine_lms/models/GroupModel.dart';
 import 'package:test_engine_lms/utils/constants.dart';
@@ -19,11 +20,13 @@ class _EditGroupCourseScreenState extends State<EditGroupCourseScreen> {
 
   ///controllers
   TextEditingController courseNameController = TextEditingController();
-  TextEditingController descriptionController = TextEditingController();
 
-  getAllGroupCategories() async {
+  var dataController = Get.put(DataController());
+
+  getAllGroups() async {
     try {
-      coursesList = await TestController().getAllCourses();
+      coursesList.clear();
+      coursesList = await dataController.getAllGroups();
       setState(() {});
       print("Category List:${coursesList.asMap()}");
     } catch (e) {
@@ -35,7 +38,7 @@ class _EditGroupCourseScreenState extends State<EditGroupCourseScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getAllGroupCategories();
+    getAllGroups();
   }
 
   @override
@@ -43,7 +46,6 @@ class _EditGroupCourseScreenState extends State<EditGroupCourseScreen> {
     // TODO: implement dispose
     super.dispose();
     courseNameController.dispose();
-    descriptionController.dispose();
   }
 
   @override
@@ -53,7 +55,7 @@ class _EditGroupCourseScreenState extends State<EditGroupCourseScreen> {
       body: Center(
         child: Container(
           alignment: Alignment.center,
-          height: Get.height / 1.6,
+          height: Get.height / 2,
           width: Get.width / 1.6,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -116,19 +118,18 @@ class _EditGroupCourseScreenState extends State<EditGroupCourseScreen> {
                             },
                             isDense: true,
                             decoration: getInputDecoration(
-                                labelText: "Select Course Group", hintText: ""),
+                                labelText: "Select Group", hintText: ""),
                             items: coursesList.map((e) {
                               return DropdownMenuItem<GroupModel>(
                                 value: e,
-                                child: Text(e.courseName.toString()),
+                                child: Text(e.groupName.toString()),
                               );
                             }).toList(),
                             onChanged: (value) {
                               selectedModel = value;
                               setState(() {});
-                              courseNameController.text=selectedModel!.courseName!;
-                              descriptionController.text=selectedModel!.description!;
-
+                              courseNameController.text =
+                                  selectedModel!.groupName!;
                             }),
                         const SizedBox(height: 20),
 
@@ -142,33 +143,11 @@ class _EditGroupCourseScreenState extends State<EditGroupCourseScreen> {
                             return null;
                           },
                           decoration: getInputDecoration(
-                              labelText: "New Course Group Name",
+                              labelText: "New Group Name",
                               hintText:
                                   "Ex: Web Development, Communication, Economics etc."),
                         ),
                         const SizedBox(height: 20),
-
-                        ///course group description
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: TextFormField(
-                            controller: descriptionController,
-                            maxLines: 5,
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "This field is mandatory to fill.";
-                              }
-                              return null;
-                            },
-                            decoration: getInputDecoration(
-                              labelText: "New Group Description",
-                              hintText:
-                                  "Ex: A course description is a brief summary of the significant learning experiences for a course.",
-                              isMaxLines: true,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
                       ],
                     ),
                   ),
@@ -184,6 +163,12 @@ class _EditGroupCourseScreenState extends State<EditGroupCourseScreen> {
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
                         ///hit api here
+                        dataController.updateGroup(
+                            model: selectedModel!,
+                            newGroupName: courseNameController.text,
+                            onSuccess: () {
+                              Get.back();
+                            });
                       }
                     },
                     icon: const Icon(

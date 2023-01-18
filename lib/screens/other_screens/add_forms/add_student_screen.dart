@@ -1,7 +1,12 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:test_engine_lms/controllers/dataController.dart';
 import 'package:test_engine_lms/utils/constants.dart';
+import 'package:test_engine_lms/utils/image_picking_service.dart';
 import 'package:test_engine_lms/utils/ui_widgets.dart';
 
 class AddStudentScreen extends StatefulWidget {
@@ -18,6 +23,9 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   TextEditingController studentNameController = TextEditingController();
   TextEditingController mobileController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  FilePickerResult? studentImage;
+
+  var dataController = Get.put(DataController());
 
   @override
   Widget build(BuildContext context) {
@@ -78,20 +86,20 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                   child: Form(
                     key: formKey,
                     child: Column(
+                      // crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         TextFormField(
-                          controller: userNameController,
+                          controller: studentNameController,
                           validator: (value) {
                             if (value!.isEmpty) {
-                              return "This field is mandatory to fill.";
+                              return "This Field is mandatory to fill.";
                             }
                             return null;
                           },
                           decoration: getInputDecoration(
-                            labelText: "UserName",
-                            hintText: "Ex: developer@123",
-                          ),
+                              labelText: "Student Name",
+                              hintText: "Ex: Sagar Singh"),
                         ),
                         const SizedBox(height: 15),
                         TextFormField(
@@ -111,6 +119,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                         ),
                         const SizedBox(height: 15),
                         TextFormField(
+                          obscureText: true,
                           validator: (value) {
                             if (value!.isEmpty) {
                               return "This Field is mandatory to fill.";
@@ -124,19 +133,6 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                             labelText: "Confirm Password",
                             hintText: "Ex: Password@#%7",
                           ),
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: studentNameController,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "This Field is mandatory to fill.";
-                            }
-                            return null;
-                          },
-                          decoration: getInputDecoration(
-                              labelText: "Student Name",
-                              hintText: "Ex: Sagar Singh"),
                         ),
                         const SizedBox(height: 15),
                         TextFormField(
@@ -171,6 +167,53 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                               hintText: "Ex: email123@gmail.com"),
                         ),
                         const SizedBox(height: 20),
+                        InkWell(
+                          onTap: () async {
+                            await ImagePickingService().pickImageFromGallery(
+                                onSelected:
+                                    (FilePickerResult filePickerResult) async {
+                              setState(() {
+                                studentImage = filePickerResult;
+                              });
+                            });
+                          },
+                          child: Stack(
+                            alignment: Alignment.bottomRight,
+                            children: [
+                              Container(
+                                  height: 100,
+                                  width: 100,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.grey,
+                                    image: studentImage == null
+                                        ? const DecorationImage(
+                                            fit: BoxFit.fill,
+                                            image: AssetImage(
+                                                "lib/assets/add_student_image.png"),
+                                          )
+                                        : DecorationImage(
+                                            fit: BoxFit.fill,
+                                            image: MemoryImage(studentImage!
+                                                .files.single.bytes!),
+                                          ),
+                                  )),
+                              Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Constants.primaryColor,
+                                ),
+                                padding: const EdgeInsets.all(5),
+                                child: const Icon(
+                                  Icons.edit,
+                                  size: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
                       ],
                     ),
                   ),
@@ -186,6 +229,20 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
                         ///hit api here
+                        dataController.addStudent(
+                            studentImage: studentImage,
+                            studentName: studentNameController.text,
+                            password: passwordController.text,
+                            mobile: mobileController.text,
+                            email: emailController.text,
+                            onSuccess: () {
+                              studentNameController.text = "";
+                              passwordController.text = "";
+                              mobileController.text = "";
+                              emailController.text = "";
+                              studentImage = null;
+                              setState(() {});
+                            });
                       }
                     },
                     icon: const Icon(

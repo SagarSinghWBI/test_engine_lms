@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:test_engine_lms/controllers/auth_controller.dart';
+import 'package:test_engine_lms/controllers/dataController.dart';
 import 'package:test_engine_lms/controllers/test_controller.dart';
 import 'package:test_engine_lms/models/GetStudentsModel.dart';
 import 'package:test_engine_lms/models/GroupModel.dart';
@@ -25,10 +26,11 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
   List<GetStudentsModel> selectedStudents = [];
   List<GroupModel> groupCoursesList = [];
   List<GroupModel> selectedCourses = [];
+  var dataController=Get.put(DataController());
 
   getAllStudents() async {
     try {
-      studentsList = await AuthController().getAllStudents();
+      studentsList = await dataController.getAllStudents();
       setState(() {});
     } catch (e) {
       print("Error get students:$e");
@@ -37,7 +39,7 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
 
   getAllCourses() async {
     try {
-      groupCoursesList = await TestController().getAllCourses();
+      groupCoursesList = await dataController.getAllGroups();
       setState(() {});
     } catch (e) {
       print("Error get courses:$e");
@@ -169,7 +171,7 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
                                 List.generate(studentsList.length, (index) {
                               return {
                                 "display":
-                                    "(${studentsList[index].studentId}) ${studentsList[index].studentName}",
+                                    "(${studentsList[index].studentId}) ${studentsList[index].userName}",
                                 "value": studentsList[index]
                               };
                             }),
@@ -246,7 +248,7 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
                                 List.generate(groupCoursesList.length, (index) {
                               return {
                                 "display":
-                                    "(${groupCoursesList[index].courseId}) ${groupCoursesList[index].courseName}",
+                                    "(${groupCoursesList[index].groupId}) ${groupCoursesList[index].groupName}",
                                 "value": groupCoursesList[index]
                               };
                             }),
