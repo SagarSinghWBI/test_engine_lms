@@ -7,7 +7,9 @@ import 'package:test_engine_lms/utils/constants.dart';
 import 'package:test_engine_lms/utils/ui_widgets.dart';
 
 class DeleteTestScreen extends StatefulWidget {
-  const DeleteTestScreen({Key? key}) : super(key: key);
+  const DeleteTestScreen({Key? key, required this.allCoursesGroup})
+      : super(key: key);
+  final List<GetTestModel> allCoursesGroup;
 
   @override
   State<DeleteTestScreen> createState() => _DeleteTestScreenState();
@@ -16,24 +18,6 @@ class DeleteTestScreen extends StatefulWidget {
 class _DeleteTestScreenState extends State<DeleteTestScreen> {
   GetTestModel? selectedModel;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
-  List<GetTestModel> allCoursesGroup = [];
-
-  getAllTests() async {
-    try {
-      allCoursesGroup = await TestController().getAllAvailableTests();
-      setState(() {});
-    } catch (e) {
-      print("Error:$e");
-    }
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    getAllTests();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,11 +95,10 @@ class _DeleteTestScreenState extends State<DeleteTestScreen> {
                                 labelText: "Select Test",
                                 hintText: "",
                               ),
-                              items: allCoursesGroup.map((e) {
+                              items: widget.allCoursesGroup.map((e) {
                                 return DropdownMenuItem<GetTestModel>(
                                   value: e,
-                                  child:
-                                      Text("(${e.testId}) ${e.testName}"),
+                                  child: Text("(${e.testId}) ${e.testName}"),
                                 );
                               }).toList(),
                               onChanged: (value) {

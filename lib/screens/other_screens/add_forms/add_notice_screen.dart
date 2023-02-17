@@ -116,6 +116,7 @@ class _AddNoticeScreenState extends State<AddNoticeScreen> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 10),
                   SizedBox(
                     height: 40,
                     width: Get.width,

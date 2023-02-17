@@ -8,7 +8,10 @@ import 'package:test_engine_lms/utils/constants.dart';
 import 'package:test_engine_lms/utils/ui_widgets.dart';
 
 class DeleteCourseGroupScreen extends StatefulWidget {
-  const DeleteCourseGroupScreen({Key? key}) : super(key: key);
+  const DeleteCourseGroupScreen({Key? key, required this.groupList})
+      : super(key: key);
+
+  final List<GroupModel> groupList;
 
   @override
   State<DeleteCourseGroupScreen> createState() =>
@@ -18,25 +21,7 @@ class DeleteCourseGroupScreen extends StatefulWidget {
 class _DeleteCourseGroupScreenState extends State<DeleteCourseGroupScreen> {
   GroupModel? selectedModel;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  var dataController=Get.put(DataController());
-
-  List<GroupModel> allCoursesGroup = [];
-
-  getAllCourses() async {
-    try {
-      allCoursesGroup = await dataController.getAllGroups();
-      setState(() {});
-    } catch (e) {
-      print("Error:$e");
-    }
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    getAllCourses();
-  }
+  var dataController = Get.put(DataController());
 
   @override
   Widget build(BuildContext context) {
@@ -114,11 +99,10 @@ class _DeleteCourseGroupScreenState extends State<DeleteCourseGroupScreen> {
                                 labelText: "Select Course Group",
                                 hintText: "",
                               ),
-                              items: allCoursesGroup.map((e) {
+                              items: widget.groupList.map((e) {
                                 return DropdownMenuItem<GroupModel>(
                                   value: e,
-                                  child:
-                                      Text("(${e.groupId}) ${e.groupName}"),
+                                  child: Text("(${e.groupId}) ${e.groupName}"),
                                 );
                               }).toList(),
                               onChanged: (value) {

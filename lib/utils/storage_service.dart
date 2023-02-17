@@ -23,12 +23,22 @@ class StorageService {
   }
 
   getHeaders() async {
+    // "Authorization": "Bearer ${await getData(key: "token")}",
+
+    // var header = {
+    //   "Access-Control-Allow-Origin": "*",
+    //   "ngrok-skip-browser-warning": true,
+    //   "Access-Control-Allow-Headers":
+    //   "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-SecurityToken,locale"
+    // };
+
     var header = {
-      "Authorization": "Bearer ${await getData(key: "token")}",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers":
-          "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-SecurityToken,locale"
+      "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+      "Access-Control-Allow-Credentials": true, // Required for cookies, authorization headers with HTTPS
+      "Access-Control-Allow-Headers": "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale",
+      "Access-Control-Allow-Methods": "POST, OPTIONS"
     };
+
     return header;
   }
 
@@ -53,7 +63,8 @@ class StorageService {
             print("Token Expired: ${value.data.toString()}");
             print("Token Expired>>>>>>>>>>>>>");
           }
-          Get.snackbar("Token Expired", "Please Login to continue.",colorText: Colors.white);
+          Get.snackbar("Token Expired", "Please Login to continue.",
+              colorText: Colors.white);
           Get.offAll(() => LoginPage());
         }
       });
@@ -62,7 +73,8 @@ class StorageService {
         print("Error while checking token:$e");
         print("Token Expired>>>>>>>>>>>>>");
       }
-      Get.snackbar("Token Expired", "Please Login to continue.",colorText: Colors.white);
+      Get.snackbar("Token Expired", "Please Login to continue.",
+          colorText: Colors.white);
       Get.offAll(() => LoginPage());
     }
   }

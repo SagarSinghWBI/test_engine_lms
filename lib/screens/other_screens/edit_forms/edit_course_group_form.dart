@@ -7,7 +7,8 @@ import 'package:test_engine_lms/utils/constants.dart';
 import 'package:test_engine_lms/utils/ui_widgets.dart';
 
 class EditGroupCourseScreen extends StatefulWidget {
-  const EditGroupCourseScreen({Key? key}) : super(key: key);
+  const EditGroupCourseScreen({Key? key, required this.groupCourses}) : super(key: key);
+  final List<GroupModel> groupCourses;
 
   @override
   State<EditGroupCourseScreen> createState() => _EditGroupCourseScreenState();
@@ -16,30 +17,11 @@ class EditGroupCourseScreen extends StatefulWidget {
 class _EditGroupCourseScreenState extends State<EditGroupCourseScreen> {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   GroupModel? selectedModel;
-  List<GroupModel> coursesList = [];
-
   ///controllers
   TextEditingController courseNameController = TextEditingController();
 
   var dataController = Get.put(DataController());
 
-  getAllGroups() async {
-    try {
-      coursesList.clear();
-      coursesList = await dataController.getAllGroups();
-      setState(() {});
-      print("Category List:${coursesList.asMap()}");
-    } catch (e) {
-      print("Error is here:$e");
-    }
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    getAllGroups();
-  }
 
   @override
   void dispose() {
@@ -110,27 +92,31 @@ class _EditGroupCourseScreenState extends State<EditGroupCourseScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         DropdownButtonFormField(
-                            validator: (value) {
-                              if (value == null) {
-                                return "Please choose a Course Group!";
-                              }
-                              return null;
-                            },
-                            isDense: true,
-                            decoration: getInputDecoration(
-                                labelText: "Select Group", hintText: ""),
-                            items: coursesList.map((e) {
-                              return DropdownMenuItem<GroupModel>(
-                                value: e,
-                                child: Text(e.groupName.toString()),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              selectedModel = value;
-                              setState(() {});
-                              courseNameController.text =
-                                  selectedModel!.groupName!;
-                            }),
+                          validator: (value) {
+                            if (value == null) {
+                              return "Please choose a Course Group!";
+                            }
+                            return null;
+                          },
+                          isDense: true,
+                          decoration: getInputDecoration(
+                            labelText: "Select Group",
+                            hintText: "",
+                          ),
+                          items: widget.groupCourses.map((e) {
+                            return DropdownMenuItem<GroupModel>(
+                              value: e,
+                              child: Text(e.groupName.toString()),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            selectedModel = value;
+                            setState(() {});
+                            courseNameController.text =
+                                selectedModel!.groupName!;
+                          },
+                          // borderRadius: BorderRadius.circular(10),
+                        ),
                         const SizedBox(height: 20),
 
                         ///course field
@@ -143,9 +129,10 @@ class _EditGroupCourseScreenState extends State<EditGroupCourseScreen> {
                             return null;
                           },
                           decoration: getInputDecoration(
-                              labelText: "New Group Name",
-                              hintText:
-                                  "Ex: Web Development, Communication, Economics etc."),
+                            labelText: "New Group Name",
+                            hintText:
+                                "Ex: Web Development, Communication, Economics etc.",
+                          ),
                         ),
                         const SizedBox(height: 20),
                       ],
@@ -167,7 +154,9 @@ class _EditGroupCourseScreenState extends State<EditGroupCourseScreen> {
                             model: selectedModel!,
                             newGroupName: courseNameController.text,
                             onSuccess: () {
-                              Get.back();
+                              formKey.currentState?.reset();
+                              courseNameController.text = "";
+                              selectedModel = GroupModel();
                             });
                       }
                     },

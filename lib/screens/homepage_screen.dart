@@ -1,8 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:test_engine_lms/controllers/dataController.dart';
+import 'package:test_engine_lms/controllers/edit_questions_controller.dart';
+import 'package:test_engine_lms/controllers/test_controller.dart';
 import 'package:test_engine_lms/models/sidebar_model.dart';
 import 'package:test_engine_lms/screens/login_screen.dart';
+import 'package:test_engine_lms/screens/other_screens/edit_forms/Edit_Institute_Profile.dart';
 import 'package:test_engine_lms/screens/side_bar_screens/dashboard_screen.dart';
 import 'package:test_engine_lms/screens/side_bar_screens/generate_test_screen.dart';
 import 'package:test_engine_lms/screens/side_bar_screens/help_screen.dart';
@@ -13,7 +17,20 @@ import 'package:test_engine_lms/utils/constants.dart';
 import 'package:test_engine_lms/utils/storage_service.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  HomePage({
+    Key? key,
+    required this.userEmail,
+    required this.userImage,
+    required this.userName,
+    required this.userPhone,
+    required this.instituteId,
+  }) : super(key: key);
+
+  String userImage;
+  String userName;
+  String userEmail;
+  String userPhone;
+  String instituteId;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -66,6 +83,8 @@ class _HomePageState extends State<HomePage> {
     // TODO: implement initState
     super.initState();
     Get.put(DataController());
+    Get.put(TestController());
+    Get.put(EditQuestionsController());
   }
 
   @override
@@ -88,7 +107,7 @@ class _HomePageState extends State<HomePage> {
                       Container(
                         height: 30,
                         width: 30,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.red,
                           shape: BoxShape.circle,
                           image: DecorationImage(
@@ -122,9 +141,18 @@ class _HomePageState extends State<HomePage> {
     return Container(
       height: Get.height,
       width: 250,
-      decoration: BoxDecoration(
-          borderRadius: const BorderRadius.only(topRight: Radius.circular(15)),
-          color: Constants.primaryColor),
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.only(topRight: Radius.circular(15)),
+        color: Colors.blue,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.blue,
+            Colors.blueAccent,
+          ],
+        ),
+      ),
       child: Column(
         children: [
           Expanded(
@@ -133,37 +161,86 @@ class _HomePageState extends State<HomePage> {
             shrinkWrap: true,
             children: [
               ///drawer header
-              Container(
-                height: 170,
-                width: 230,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ///user Image
-                    Container(
-                      margin: const EdgeInsets.all(10),
-                      height: 120,
-                      width: 120,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          image: NetworkImage(
-                              "https://avatars.githubusercontent.com/u/91717890?v=4"),
-                          fit: BoxFit.fill,
+              Stack(
+                alignment: Alignment.topRight,
+                children: [
+                  Container(
+                    height: 170,
+                    width: 230,
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ///user Image
+                        Container(
+                          margin: const EdgeInsets.all(10),
+                          height: 100,
+                          width: 100,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            image: widget.userImage.contains("http")
+                                ? DecorationImage(
+                                    image: NetworkImage(widget.userImage),
+                                    fit: BoxFit.fill,
+                                  )
+                                : const DecorationImage(
+                                    image: AssetImage(
+                                        "lib/assets/campus_image.png")),
+                          ),
+                        ),
+
+                        ///institute name
+                        Text(widget.userName,
+                            style: TextStyle(
+                              color: Constants.textColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            )),
+
+                        ///email name
+                        Text(widget.userEmail,
+                            style: TextStyle(
+                              color: Constants.textColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            )),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "ID: ${widget.instituteId}",
+                          style: const TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
                         ),
                       ),
-                    ),
-
-                    ///institute name
-                    Text("Institute Name",
-                        style: TextStyle(
-                          color: Constants.textColor,
-                          fontWeight: FontWeight.bold,
-                        )),
-                  ],
-                ),
+                      IconButton(
+                        onPressed: () {
+                          if (kDebugMode) {
+                            print(
+                                "Institute data:${widget.userPhone}, ${widget.userName}, ${widget.userImage}, ${widget.userEmail}");
+                          }
+                          Get.dialog(EditInstituteProfile(
+                            phoneNumber: widget.userPhone,
+                            userImage: widget.userImage,
+                            userName: widget.userName,
+                          ));
+                        },
+                        icon: const Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                        ),
+                        iconSize: 18,
+                      ),
+                    ],
+                  ),
+                ],
               ),
               const Divider(color: Colors.indigoAccent),
               SizedBox(
@@ -180,11 +257,16 @@ class _HomePageState extends State<HomePage> {
                               colors: [
                                 activeIndex == index
                                     ? Colors.indigoAccent
-                                    : Colors.blue,
-                                const Color(0xff00B3EE)
+                                    : Colors.indigo,
+                                Colors.indigo
                               ],
                               begin: Alignment.bottomCenter,
                               end: Alignment.topCenter,
+                            ),
+                            border: Border.all(
+                              color: activeIndex == index
+                                  ? Colors.white
+                                  : Colors.transparent,
                             ),
                             borderRadius: BorderRadius.circular(10),
                             color: activeIndex == index
@@ -193,7 +275,7 @@ class _HomePageState extends State<HomePage> {
                             boxShadow: activeIndex == index
                                 ? [
                                     const BoxShadow(
-                                      color: Colors.grey,
+                                      color: Colors.blue,
                                       blurRadius: 0,
                                       spreadRadius: 2,
                                     )

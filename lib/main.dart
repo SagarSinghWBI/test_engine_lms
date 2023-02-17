@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,10 +16,19 @@ Future<void> main() async {
 
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
+  final GetStorage _storage = GetStorage();
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      scrollBehavior: const MaterialScrollBehavior().copyWith(
+        dragDevices: {
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.touch,
+          PointerDeviceKind.stylus,
+          PointerDeviceKind.unknown
+        },
+      ),
       onInit: () async {
         // String token = await StorageService().getData(key: "token");
         // if (token != "null") {
@@ -32,11 +42,19 @@ class MyApp extends StatelessWidget {
       title: Constants.appName,
       color: Colors.indigo,
       theme: ThemeData(
-        textTheme: GoogleFonts.latoTextTheme()
+        textTheme: GoogleFonts.nunitoSansTextTheme()
             .copyWith(bodyLarge: const TextStyle(fontWeight: FontWeight.bold)),
       ),
-      home: HomePage(),
-      // home: _storage.hasData("userId") ? const HomePage() : const LoginPage(),
+      // home: HomePage(),
+      home: _storage.hasData("userId")
+          ? HomePage(
+              instituteId: _storage.read("userId"),
+              userPhone: _storage.read("userPhone").toString(),
+              userName: _storage.read("userName").toString(),
+              userImage: _storage.read("userImage").toString(),
+              userEmail: _storage.read("userEmail").toString(),
+            )
+          : const LoginPage(),
     );
   }
 }

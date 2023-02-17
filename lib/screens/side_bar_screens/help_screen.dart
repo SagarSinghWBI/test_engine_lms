@@ -150,24 +150,29 @@ class _HelpScreenState extends State<HelpScreen> {
                     width: Get.width,
                     height: 100,
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.greenAccent,
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.grey,
-                            blurRadius: 2,
-                            spreadRadius: 2,
-                          ),
-                        ]),
+                      borderRadius: BorderRadius.circular(20),
+                      color: Constants.primaryColor,
+                      // boxShadow: const [
+                      //   BoxShadow(
+                      //     color: Colors.grey,
+                      //     blurRadius: 2,
+                      //     spreadRadius: 2,
+                      //   ),
+                      // ],
+                    ),
                     child: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                              "Question: ${filteredQuestionsList[index].question}"),
+                            "Question: ${filteredQuestionsList[index].question}",
+                            style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                color: Constants.headerColor),
+                          ),
                           const SizedBox(height: 5),
                           Text("Answer: ${filteredQuestionsList[index].answer}",
-                              style: TextStyle(color: Colors.indigo)),
+                              style: TextStyle(color: Constants.dataColor)),
                         ],
                       ),
                     ),

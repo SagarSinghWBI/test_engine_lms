@@ -4,16 +4,18 @@ import 'constants.dart';
 
 class MyButton extends StatefulWidget {
   final bool isLoading;
-  final double width;
+  double? width = double.infinity;
   final String text;
   final Color? lightColor;
   final Color? darkColor;
+  Widget? icon;
   final EdgeInsetsGeometry? padding;
 
   final GestureTapCallback? onTap;
-  const MyButton(
+  MyButton(
       {Key? key,
-      required this.width,
+      this.width,
+      this.icon,
       required this.text,
       required this.onTap,
       this.padding,
@@ -66,11 +68,23 @@ class _MyButtonState extends State<MyButton> {
                       ? const CircularProgressIndicator(
                           color: Colors.white,
                         )
-                      : Text(widget.text,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline6!
-                              .apply(color: Colors.white)),
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            widget.icon != null
+                                ? Padding(
+                                    padding: const EdgeInsets.only(right: 8),
+                                    child: widget.icon,
+                                  )
+                                : const SizedBox(),
+                            Text(widget.text,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline6!
+                                    .apply(color: Colors.white)),
+                          ],
+                        ),
                 ),
               ),
             )),
@@ -79,12 +93,46 @@ class _MyButtonState extends State<MyButton> {
   }
 }
 
+getSearchButton(
+    {required String labelText,
+    required String hintText,
+    required void Function(String) onChanged}) {
+  return TextFormField(
+    style: TextStyle(color: Colors.white),
+    onChanged: (value) {
+      onChanged.call(value);
+    },
+    decoration: InputDecoration(
+      isDense: true,
+      labelStyle: TextStyle(color: Colors.white),
+      hintStyle: const TextStyle(fontSize: 15, color: Colors.white54),
+      labelText: labelText,
+      hintText: hintText,
+      focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(50),
+          borderSide: BorderSide(color: Colors.white)),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(50),
+        borderSide: BorderSide(color: Colors.white),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(50),
+        borderSide: BorderSide(color: Colors.white),
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(50),
+        borderSide: BorderSide(color: Colors.white),
+      ),
+    ),
+  );
+}
+
 getInputDecoration(
         {required String labelText,
         required String hintText,
         bool isMaxLines = false}) =>
     InputDecoration(
-      isDense: true,
+        isDense: true,
         labelStyle: TextStyle(color: Constants.primaryColor),
         hintStyle: const TextStyle(fontSize: 15),
         labelText: labelText,

@@ -11,7 +11,11 @@ import 'package:test_engine_lms/utils/constants.dart';
 import 'package:test_engine_lms/utils/ui_widgets.dart';
 
 class AssignStudentCourseScreen extends StatefulWidget {
-  const AssignStudentCourseScreen({Key? key}) : super(key: key);
+  const AssignStudentCourseScreen(
+      {Key? key, required this.studentsList, required this.groupCoursesList})
+      : super(key: key);
+  final List<GetStudentsModel> studentsList;
+  final List<GroupModel> groupCoursesList;
 
   @override
   State<AssignStudentCourseScreen> createState() =>
@@ -21,38 +25,10 @@ class AssignStudentCourseScreen extends StatefulWidget {
 class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  GetStudentsModel? selectedModel;
-  List<GetStudentsModel> studentsList = [];
+  // GetStudentsModel? selectedModel;
   List<GetStudentsModel> selectedStudents = [];
-  List<GroupModel> groupCoursesList = [];
   List<GroupModel> selectedCourses = [];
-  var dataController=Get.put(DataController());
-
-  getAllStudents() async {
-    try {
-      studentsList = await dataController.getAllStudents();
-      setState(() {});
-    } catch (e) {
-      print("Error get students:$e");
-    }
-  }
-
-  getAllCourses() async {
-    try {
-      groupCoursesList = await dataController.getAllGroups();
-      setState(() {});
-    } catch (e) {
-      print("Error get courses:$e");
-    }
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    getAllStudents();
-    getAllCourses();
-  }
+  var dataController = Get.put(DataController());
 
   @override
   Widget build(BuildContext context) {
@@ -120,13 +96,14 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
                           children: [
                             Checkbox(
                                 value: selectedStudents.length ==
-                                    studentsList.length,
+                                        widget.studentsList.length &&
+                                    widget.studentsList.isNotEmpty,
                                 onChanged: (value) {
                                   if (value == true) {
                                     if (kDebugMode) {
                                       print("here");
                                     }
-                                    selectedStudents = studentsList;
+                                    selectedStudents = widget.studentsList;
                                     setState(() {});
                                   } else {
                                     if (kDebugMode) {
@@ -142,8 +119,8 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
 
                         ///multiple student field
                         Visibility(
-                          visible:
-                              selectedStudents.length != studentsList.length,
+                          visible: selectedStudents.length !=
+                              widget.studentsList.length,
                           child: MultiSelectFormField(
                             // required: true,
                             border: OutlineInputBorder(
@@ -167,12 +144,12 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
                               }
                               return null;
                             },
-                            dataSource:
-                                List.generate(studentsList.length, (index) {
+                            dataSource: List.generate(
+                                widget.studentsList.length, (index) {
                               return {
                                 "display":
-                                    "(${studentsList[index].studentId}) ${studentsList[index].userName}",
-                                "value": studentsList[index]
+                                    "(${widget.studentsList[index].studentId}) ${widget.studentsList[index].userName}",
+                                "value": widget.studentsList[index]
                               };
                             }),
                             valueField: "value",
@@ -198,13 +175,14 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
                           children: [
                             Checkbox(
                                 value: selectedCourses.length ==
-                                    groupCoursesList.length,
+                                        widget.groupCoursesList.length &&
+                                    widget.groupCoursesList.isNotEmpty,
                                 onChanged: (value) {
                                   if (value == true) {
                                     if (kDebugMode) {
                                       print("here");
                                     }
-                                    selectedCourses = groupCoursesList;
+                                    selectedCourses = widget.groupCoursesList;
                                     setState(() {});
                                   } else {
                                     if (kDebugMode) {
@@ -220,7 +198,8 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
 
                         ///multiple courses field
                         Visibility(
-                          visible: selectedCourses != groupCoursesList,
+                          visible: selectedCourses.length !=
+                              widget.groupCoursesList.length,
                           child: MultiSelectFormField(
                             // required: true,
                             border: OutlineInputBorder(
@@ -244,12 +223,12 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
                               }
                               return null;
                             },
-                            dataSource:
-                                List.generate(groupCoursesList.length, (index) {
+                            dataSource: List.generate(
+                                widget.groupCoursesList.length, (index) {
                               return {
                                 "display":
-                                    "(${groupCoursesList[index].groupId}) ${groupCoursesList[index].groupName}",
-                                "value": groupCoursesList[index]
+                                    "(${widget.groupCoursesList[index].groupId}) ${widget.groupCoursesList[index].groupName}",
+                                "value": widget.groupCoursesList[index]
                               };
                             }),
                             valueField: "value",
@@ -282,7 +261,28 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
                             MaterialStatePropertyAll(Constants.primaryColor)),
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
+                        List<int> studentIds = [];
+                        List<int> courseIds = [];
+
+                        for (var element in selectedStudents) {
+                          studentIds.add(element.studentId!);
+                        }
+
+                        for (var element in selectedCourses) {
+                          courseIds.add(element.groupId!);
+                        }
+
                         ///hit api here
+                        AuthController().assignMultipleCoursesToStudents(
+                          studentIds: studentIds,
+                          courseIds: courseIds,
+                          onSuccess: () {
+                            formKey.currentState?.reset();
+                            selectedCourses.clear();
+                            selectedStudents.clear();
+                            // setState(() {});
+                          },
+                        );
                       }
                     },
                     icon: const Icon(

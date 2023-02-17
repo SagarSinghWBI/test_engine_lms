@@ -3,11 +3,45 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_engine_lms/utils/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+getUpgradeSubscriptionDialog() {
+  Get.defaultDialog(
+    title: "Upgrade Your Subscription",
+    titleStyle: const TextStyle(
+      fontWeight: FontWeight.bold,
+      color: Colors.red,
+    ),
+    content: Center(
+      child: Column(
+        children: [
+          Image.asset(
+            "lib/assets/upgrade_subscription.png",
+            height: 50,
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            "The limit has been exceeded. Please upgrade your subscription to continue.",
+            textAlign: TextAlign.center,
+            style: TextStyle(),
+          ),
+        ],
+      ),
+    ),
+    onConfirm: () {
+      launchUrl(Uri.parse(Constants.buySubscriptionURL));
+    },
+    confirmTextColor: Colors.white,
+    textConfirm: "Upgrade Now!",
+    buttonColor: Constants.primaryColor,
+  );
+}
 
 getSuccessDialogue({required String message}) {
   Get.defaultDialog(
     title: "Success",
-    titleStyle: const TextStyle(color: Colors.green,fontWeight: FontWeight.bold),
+    titleStyle:
+        const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
     buttonColor: Constants.primaryColor,
     confirmTextColor: Colors.white,
     content: Center(
@@ -46,18 +80,17 @@ getLoadingDialogue({required String title}) {
   );
 }
 
-///
 getErrorDialogue({required String errorMessage}) {
   Get.defaultDialog(
       title: 'Error',
-      titleStyle: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+      titleStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
       content: Container(
         height: Get.height / 3,
         alignment: Alignment.center,
         child: SingleChildScrollView(
             child: Text(
           errorMessage,
-          style: TextStyle(color: Colors.red),
+          style: const TextStyle(color: Colors.red),
           textAlign: TextAlign.center,
         )),
       ),

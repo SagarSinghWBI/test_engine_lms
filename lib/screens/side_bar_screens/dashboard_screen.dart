@@ -2,7 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:test_engine_lms/controllers/auth_controller.dart';
 import 'package:test_engine_lms/utils/constants.dart';
+import 'package:test_engine_lms/utils/storage_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -12,6 +14,31 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  String? totalGroups;
+  String? totalTests;
+  String? totalStudents;
+  String? totalNotice;
+
+  getDashboardData() async {
+    await AuthController().getInstituteDashboardData().then((element) async {
+      totalGroups = await StorageService().getData(key: "totalGroups");
+      totalTests = await StorageService().getData(key: "totalTests");
+      totalStudents = await StorageService().getData(key: "totalStudents");
+      totalNotice = await StorageService().getData(key: "totalNotice");
+
+      setState(() {});
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if (totalGroups == null) {
+      getDashboardData();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,16 +55,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Admin Dashboard:",
-                  style: TextStyle(
-                    color: Constants.primaryColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                  ),
-                )),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Admin Dashboard:",
+                      style: TextStyle(
+                        color: Constants.primaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    )),
+                SizedBox(
+                    height: 15,
+                    child: IconButton(
+                        tooltip: "Refresh",
+                        onPressed: () {
+                          getDashboardData();
+                        },
+                        icon: Icon(
+                          Icons.refresh,
+                          color: Constants.primaryColor,
+                        ))),
+              ],
+            ),
             const SizedBox(height: 5),
             Container(
               alignment: Alignment.centerLeft,
@@ -66,17 +109,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         getCard(
-                            onTap: () {},
-                            categoryName: "Total Group Categories",
-                            data: "25"),
+                          assetImage: "lib/assets/test_group.jpg",
+                          onTap: () {},
+                          categoryName: "Total Groups",
+                          data: totalGroups ?? "0",
+                        ),
                         getCard(
-                            onTap: () {},
-                            categoryName: "Total Groups",
-                            data: "20"),
+                          assetImage: "lib/assets/tests_dash.jpg",
+                          onTap: () {},
+                          categoryName: "Total Tests",
+                          data: totalTests ?? "0",
+                        ),
                         getCard(
-                            onTap: () {},
-                            categoryName: "Total Available Tests",
-                            data: "60"),
+                          assetImage: "lib/assets/bulk_student.png",
+                          onTap: () {},
+                          categoryName: "Total Students",
+                          data: totalStudents ?? "0",
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        getCard(
+                          onTap: () {},
+                          assetImage: "lib/assets/notice_dash.jpg",
+                          categoryName: "Total Notices",
+                          data: totalNotice ?? "0",
+                        ),
+                        getCard(
+                          assetImage: "lib/assets/test_group.jpg",
+                          onTap: () {},
+                          categoryName: "Total Tests",
+                          data: totalTests ?? "0",
+                        ),
+                        getCard(
+                          assetImage: "lib/assets/test_group.jpg",
+                          onTap: () {},
+                          categoryName: "Total Students",
+                          data: totalStudents ?? "0",
+                        ),
                       ],
                     ),
                   ],
@@ -92,6 +164,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   getCard(
       {required String categoryName,
       required String data,
+      required String assetImage,
       required void Function() onTap}) {
     return Expanded(
       child: InkWell(
@@ -104,10 +177,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
           // height: MediaQuery.of(context).size.width / 4,
           decoration: BoxDecoration(
               color: Colors.orange.shade100,
-              // gradient: RadialGradient(colors: [
-              //   Colors.white,
-              //   Colors.indigo,
-              // ]),
+              border: Border.all(
+                color: Colors.white,
+              ),
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.blue,
+                  Colors.blueAccent,
+                ],
+              ),
               borderRadius: BorderRadius.circular(20)),
           child: Column(
             children: [
@@ -116,13 +196,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   Container(
                     alignment: Alignment.topLeft,
-                    height: Get.width / 8,
+                    height: Get.width / 8.1,
                     width: Get.width / 8,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
-                      color: Constants.primaryColor,
-                      image: const DecorationImage(
-                        image: AssetImage("lib/assets/categories.jpg"),
+                      color: Colors.white,
+                      image: DecorationImage(
+                        image: AssetImage(assetImage),
                         fit: BoxFit.fill,
                       ),
                     ),
@@ -136,7 +216,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             Text(
                               categoryName,
                               style: const TextStyle(
-                                color: Colors.indigo,
+                                color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15,
                               ),
@@ -147,7 +227,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               child: Text(
                                 data,
                                 style: const TextStyle(
-                                  color: Colors.indigo,
+                                  color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 25,
                                 ),
@@ -164,17 +244,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   Container(
                     height: 50,
-                    width: 70,
-                    decoration: BoxDecoration(
+                    width: 50,
+                    margin: const EdgeInsets.only(top: 5),
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       image: DecorationImage(
                         fit: BoxFit.fill,
-                        image: AssetImage("lib/assets/student.gif"),
+                        image: AssetImage("lib/assets/teacher.gif"),
                       ),
                     ),
                   ),
                   Container(
-                    padding: EdgeInsets.all(5),
+                    padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(10),

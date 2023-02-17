@@ -10,7 +10,9 @@ import 'package:test_engine_lms/utils/constants.dart';
 import 'package:test_engine_lms/utils/ui_widgets.dart';
 
 class DeleteStudentScreen extends StatefulWidget {
-  const DeleteStudentScreen({Key? key}) : super(key: key);
+  const DeleteStudentScreen({Key? key, required this.allStudents})
+      : super(key: key);
+  final List<GetStudentsModel> allStudents;
 
   @override
   State<DeleteStudentScreen> createState() => _DeleteStudentScreenState();
@@ -19,24 +21,8 @@ class DeleteStudentScreen extends StatefulWidget {
 class _DeleteStudentScreenState extends State<DeleteStudentScreen> {
   GetStudentsModel? selectedModel;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  List<GetStudentsModel> allStudents = [];
   var dataController = Get.put(DataController());
 
-  getAllStudents() async {
-    try {
-      allStudents = await dataController.getAllStudents();
-      setState(() {});
-    } catch (e) {
-      print("Error:$e");
-    }
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    getAllStudents();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +100,7 @@ class _DeleteStudentScreenState extends State<DeleteStudentScreen> {
                                 labelText: "Select Student",
                                 hintText: "",
                               ),
-                              items: allStudents.map((e) {
+                              items: widget.allStudents.map((e) {
                                 return DropdownMenuItem<GetStudentsModel>(
                                   value: e,
                                   child: Text("(${e.studentId}) ${e.userName}"),

@@ -8,7 +8,9 @@ import 'package:test_engine_lms/utils/constants.dart';
 import 'package:test_engine_lms/utils/ui_widgets.dart';
 
 class EditStudentScreen extends StatefulWidget {
-  const EditStudentScreen({Key? key}) : super(key: key);
+  const EditStudentScreen({Key? key, required this.studentList})
+      : super(key: key);
+  final List<GetStudentsModel> studentList;
 
   @override
   State<EditStudentScreen> createState() => _EditStudentScreenState();
@@ -21,25 +23,8 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
   TextEditingController studentNameController = TextEditingController();
   TextEditingController mobileController = TextEditingController();
   TextEditingController emailController = TextEditingController();
-  List<GetStudentsModel> studentList = [];
   GetStudentsModel? selectedModel;
   var dataController = Get.put(DataController());
-
-  getAllStudents() async {
-    try {
-      studentList = await dataController.getAllStudents();
-      setState(() {});
-    } catch (e) {
-      print("Error is here:$e");
-    }
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    getAllStudents();
-  }
 
   @override
   void dispose() {
@@ -126,12 +111,13 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                             },
                             isDense: true,
                             decoration: getInputDecoration(
-                                labelText: "Select Student",
-                                hintText: "Select Student"),
-                            items: studentList.map((e) {
+                              labelText: "Select Student",
+                              hintText: "Select Student",
+                            ),
+                            items: widget.studentList.map((e) {
                               return DropdownMenuItem<GetStudentsModel>(
                                 value: e,
-                                child: Text("(${e.studentId}) ${e.userName}"),
+                                child: Text("${e.studentId}. ${e.userName}"),
                               );
                             }).toList(),
                             onChanged: (value) {
@@ -215,29 +201,32 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                             if (value!.isEmpty) {
                               return "This Field is mandatory to fill.";
                             }
+                            // else if(value.length!=10){
+                            //   return "Please enter a valid mobile number.";
+                            // }
                             return null;
                           },
                           decoration: getInputDecoration(
                               labelText: "New Mobile Number",
                               hintText: "Ex: 9876543210"),
                         ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "This Field is mandatory to fill.";
-                            } else if (!(GetUtils.isEmail(value.trim()))) {
-                              return "Please enter a valid email address.";
-                            }
-                            return null;
-                          },
-                          decoration: getInputDecoration(
-                            labelText: "New Email",
-                            hintText: "Ex: email123@gmail.com",
-                          ),
-                        ),
+                        // const SizedBox(height: 15),
+                        // TextFormField(
+                        //   controller: emailController,
+                        //   keyboardType: TextInputType.emailAddress,
+                        //   validator: (value) {
+                        //     if (value!.isEmpty) {
+                        //       return "This Field is mandatory to fill.";
+                        //     } else if (!(GetUtils.isEmail(value.trim()))) {
+                        //       return "Please enter a valid email address.";
+                        //     }
+                        //     return null;
+                        //   },
+                        //   decoration: getInputDecoration(
+                        //     labelText: "User Email",
+                        //     hintText: "Ex: email123@gmail.com",
+                        //   ),
+                        // ),
                         const SizedBox(height: 20),
                       ],
                     ),
@@ -254,6 +243,18 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
                         ///hit api here
+                        DataController().updateStudent(
+                          studentId: selectedModel!.studentId!,
+                          userName: userNameController.text,
+                          mobile: mobileController.text,
+                          onSuccess: () {
+                            formKey.currentState?.reset();
+                            userNameController.text = "";
+                            mobileController.text = "";
+                            selectedModel = GetStudentsModel();
+                          },
+                          image: null,
+                        );
                       }
                     },
                     icon: const Icon(

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:test_engine_lms/controllers/auth_controller.dart';
-import 'package:test_engine_lms/screens/homepage_screen.dart';
+import 'package:test_engine_lms/screens/other_screens/edit_forms/forget_password_screen.dart';
 import 'package:test_engine_lms/utils/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -12,7 +13,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController usernameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
 
@@ -38,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             child: Column(
               children: [
-                Text("~~~ Welcome To LMS ~~~",
+                Text("~~~ Welcome To WBI Test Maker ~~~",
                     style: TextStyle(
                         fontSize: 25,
                         color: Constants.primaryColor,
@@ -72,17 +73,20 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                   const SizedBox(height: 20),
                                   TextFormField(
-                                      textInputAction: TextInputAction.next,
+                                    textInputAction: TextInputAction.next,
                                     validator: (value) {
                                       if (value!.isEmpty) {
                                         return "Please enter your username";
+                                      } else if (!(GetUtils.isEmail(
+                                          value.trim()))) {
+                                        return "Please enter a valid email.";
                                       }
                                       return null;
                                     },
-                                    controller: usernameController,
+                                    controller: emailController,
                                     decoration: InputDecoration(
                                         isDense: true,
-                                        labelText: "Username",
+                                        labelText: "Email",
                                         labelStyle: TextStyle(
                                             color: Constants.primaryColor),
                                         border: OutlineInputBorder(
@@ -99,16 +103,14 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                   const SizedBox(height: 15),
                                   TextFormField(
-                                    onFieldSubmitted: (value){
+                                    obscureText: true,
+                                    onFieldSubmitted: (value) {
                                       if (loginFormKey.currentState!
                                           .validate()) {
                                         AuthController().loginUser(
-                                            username: usernameController
-                                                .text
-                                                .trim(),
-                                            password: passwordController
-                                                .text
-                                                .trim());
+                                            email: emailController.text.trim(),
+                                            password:
+                                                passwordController.text.trim());
                                       }
                                     },
                                     validator: (value) {
@@ -136,10 +138,11 @@ class _LoginPageState extends State<LoginPage> {
                                         )),
                                   ),
                                   const SizedBox(height: 30),
-                                  SizedBox(
-                                      height: 30,
-                                      width: 250,
-                                      child: ClipRRect(
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      ClipRRect(
                                         borderRadius: BorderRadius.circular(20),
                                         child: ElevatedButton.icon(
                                             style: ButtonStyle(
@@ -152,8 +155,7 @@ class _LoginPageState extends State<LoginPage> {
                                               if (loginFormKey.currentState!
                                                   .validate()) {
                                                 AuthController().loginUser(
-                                                    username: usernameController
-                                                        .text
+                                                    email: emailController.text
                                                         .trim(),
                                                     password: passwordController
                                                         .text
@@ -162,7 +164,36 @@ class _LoginPageState extends State<LoginPage> {
                                             },
                                             label:
                                                 const Text("Login as Admin")),
-                                      )),
+                                      ),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: ElevatedButton.icon(
+                                            style: ButtonStyle(
+                                              backgroundColor:
+                                                  MaterialStatePropertyAll(
+                                                      Constants.primaryColor),
+                                            ),
+                                            icon: const Icon(
+                                                Icons.account_circle),
+                                            onPressed: () async {
+                                              await launchUrl(Uri.parse(
+                                                  Constants
+                                                      .buySubscriptionURL));
+                                            },
+                                            label: const Text(
+                                                "Create New Account")),
+                                      ),
+                                      TextButton(
+                                          onPressed: () {
+                                            Get.dialog(
+                                                const ForgetPasswordScreen());
+                                          },
+                                          child: const Text(
+                                            "forget password?",
+                                            style: TextStyle(color: Colors.red),
+                                          )),
+                                    ],
+                                  ),
                                 ],
                               ),
                             ),

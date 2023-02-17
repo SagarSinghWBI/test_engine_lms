@@ -1,12 +1,14 @@
-import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:test_engine_lms/controllers/auth_controller.dart';
 import 'package:test_engine_lms/controllers/dataController.dart';
 import 'package:test_engine_lms/utils/constants.dart';
 import 'package:test_engine_lms/utils/image_picking_service.dart';
+import 'package:test_engine_lms/utils/my_dialogs.dart';
+import 'package:test_engine_lms/utils/storage_service.dart';
 import 'package:test_engine_lms/utils/ui_widgets.dart';
 
 class AddStudentScreen extends StatefulWidget {
@@ -26,6 +28,17 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   FilePickerResult? studentImage;
 
   var dataController = Get.put(DataController());
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    userNameController.dispose();
+    passwordController.dispose();
+    studentNameController.dispose();
+    mobileController.dispose();
+    emailController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +102,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                       // crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        const SizedBox(height: 10),
                         TextFormField(
                           controller: studentNameController,
                           validator: (value) {
@@ -98,8 +112,9 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                             return null;
                           },
                           decoration: getInputDecoration(
-                              labelText: "Student Name",
-                              hintText: "Ex: Sagar Singh"),
+                            labelText: "Student Name",
+                            hintText: "Ex: Sagar Singh",
+                          ),
                         ),
                         const SizedBox(height: 15),
                         TextFormField(
@@ -163,8 +178,9 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                             return null;
                           },
                           decoration: getInputDecoration(
-                              labelText: "Email",
-                              hintText: "Ex: email123@gmail.com"),
+                            labelText: "Email",
+                            hintText: "Ex: email123@gmail.com",
+                          ),
                         ),
                         const SizedBox(height: 20),
                         InkWell(
@@ -226,23 +242,39 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                     style: ButtonStyle(
                         backgroundColor:
                             MaterialStatePropertyAll(Constants.primaryColor)),
-                    onPressed: () {
+                    onPressed: () async {
                       if (formKey.currentState!.validate()) {
-                        ///hit api here
-                        dataController.addStudent(
-                            studentImage: studentImage,
-                            studentName: studentNameController.text,
-                            password: passwordController.text,
-                            mobile: mobileController.text,
-                            email: emailController.text,
-                            onSuccess: () {
-                              studentNameController.text = "";
-                              passwordController.text = "";
-                              mobileController.text = "";
-                              emailController.text = "";
-                              studentImage = null;
-                              setState(() {});
-                            });
+                        await AuthController().getInstituteDashboardData();
+
+                        ///check for subscription
+                        var limit =
+                            await StorageService().getData(key: "userLimit");
+                        int userLimit = int.parse(limit.toString());
+
+                        String availableStudents = await StorageService()
+                            .getData(key: "totalStudents");
+                        int currentAvailableStudent =
+                            int.parse(availableStudents);
+                        if (currentAvailableStudent <= userLimit) {
+                          ///hit api here
+                          dataController.addStudent(
+                              studentImage: studentImage,
+                              studentName: studentNameController.text,
+                              password: passwordController.text,
+                              mobile: mobileController.text,
+                              email: emailController.text,
+                              onSuccess: () {
+                                formKey.currentState?.reset();
+                                studentNameController.text = "";
+                                passwordController.text = "";
+                                mobileController.text = "";
+                                emailController.text = "";
+                                studentImage = null;
+                                setState(() {});
+                              });
+                        } else {
+                          getUpgradeSubscriptionDialog();
+                        }
                       }
                     },
                     icon: const Icon(

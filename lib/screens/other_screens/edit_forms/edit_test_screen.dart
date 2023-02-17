@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:math_keyboard/math_keyboard.dart';
 import 'package:test_engine_lms/controllers/test_controller.dart';
 import 'package:test_engine_lms/models/GetTestModel.dart';
@@ -11,7 +12,8 @@ import 'package:test_engine_lms/utils/constants.dart';
 import 'package:test_engine_lms/utils/ui_widgets.dart';
 
 class EditTestScreen extends StatefulWidget {
-  const EditTestScreen({Key? key}) : super(key: key);
+  const EditTestScreen({Key? key, required this.testList}) : super(key: key);
+  final List<GetTestModel> testList;
 
   @override
   State<EditTestScreen> createState() => _EditTestScreenState();
@@ -20,7 +22,6 @@ class EditTestScreen extends StatefulWidget {
 class _EditTestScreenState extends State<EditTestScreen> {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  List<GetTestModel> testList = [];
   GetTestModel? selectedModel;
   int totalQuestions = 0;
   List<Questions> questionsList = [];
@@ -29,23 +30,22 @@ class _EditTestScreenState extends State<EditTestScreen> {
   TextEditingController testNameController = TextEditingController();
   TextEditingController totalQuestionsController = TextEditingController();
   TextEditingController totalTimeController = TextEditingController();
-
-  getAllTests() async {
-    try {
-      testList = await TestController().getAllAvailableTests();
-      setState(() {});
-    } catch (e) {
-      if (kDebugMode) {
-        print("get group Error is:$e");
-      }
-    }
-  }
+  TextEditingController totalMarksController = TextEditingController();
+  TextEditingController showedQuestionsController = TextEditingController();
+  TextEditingController endDateController = TextEditingController();
+  TextEditingController startDateController = TextEditingController();
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    getAllTests();
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    testNameController.dispose();
+    totalQuestionsController.dispose();
+    totalTimeController.dispose();
+    totalMarksController.dispose();
+    showedQuestionsController.dispose();
+    endDateController.dispose();
+    startDateController.dispose();
   }
 
   @override
@@ -121,15 +121,15 @@ class _EditTestScreenState extends State<EditTestScreen> {
                             isDense: true,
                             decoration: getInputDecoration(
                                 labelText: "Choose a Test", hintText: ""),
-                            items: testList.map((e) {
+                            items: widget.testList.map((e) {
                               return DropdownMenuItem<GetTestModel>(
                                 value: e,
-                                child: Text(
-                                    "(${e.testId}) ${e.testName}, ${e.groupCourse}"),
+                                child: Text("${e.testId}. ${e.testName}"),
                               );
                             }).toList(),
                             onChanged: (value) {
                               selectedModel = value;
+
                               setState(() {});
                               testNameController.text =
                                   selectedModel!.testName!;
@@ -137,6 +137,12 @@ class _EditTestScreenState extends State<EditTestScreen> {
                                   selectedModel!.totalQuestions!.toString();
                               totalTimeController.text =
                                   selectedModel!.totalTime!.toString();
+                              showedQuestionsController.text =
+                                  selectedModel!.showedQuestion!.toString();
+                              endDateController.text =
+                                  selectedModel!.endDate.toString();
+                              totalMarksController.text =
+                                  selectedModel!.totalMarks.toString();
                               formKey.currentState?.save();
                             }),
                         const SizedBox(height: 20),
@@ -159,6 +165,7 @@ class _EditTestScreenState extends State<EditTestScreen> {
 
                         ///total questions
                         TextFormField(
+                          enabled: false,
                           controller: totalQuestionsController,
                           inputFormatters: <TextInputFormatter>[
                             FilteringTextInputFormatter.digitsOnly
@@ -170,8 +177,34 @@ class _EditTestScreenState extends State<EditTestScreen> {
                             }
                             return null;
                           },
+                          onSaved: (String? value) {},
+                          decoration: getInputDecoration(
+                              labelText: "Total Questions",
+                              hintText: "Ex: 10, 50, 100, 200 etc."),
+                        ),
+                        const SizedBox(height: 20),
+
+                        ///showed questions
+                        TextFormField(
+                          enabled: true,
+                          controller: showedQuestionsController,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          keyboardType: TextInputType.number,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return "This field is mandatory to fill.";
+                            } else if (int.parse(value) >
+                                int.parse(totalQuestionsController.text)) {
+                              return "Showed questions cannot be greater than total questions.";
+                            }
+                            return null;
+                          },
                           onSaved: (String? value) {
-                            print("here>>>>>>>");
+                            if (kDebugMode) {
+                              print("here>>>>>>>");
+                            }
 
                             if (value != "0" && value!.isNotEmpty) {
                               questionsList.clear();
@@ -191,8 +224,9 @@ class _EditTestScreenState extends State<EditTestScreen> {
                             }
                           },
                           decoration: getInputDecoration(
-                              labelText: "Total Questions",
-                              hintText: "Ex: 10, 50, 100, 200 etc."),
+                            labelText: "Showed Questions",
+                            hintText: "Ex: 10, 50, 100, 200 etc.",
+                          ),
                         ),
                         const SizedBox(height: 20),
 
@@ -215,302 +249,70 @@ class _EditTestScreenState extends State<EditTestScreen> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        ElevatedButton(
-                            style: const ButtonStyle(
-                                backgroundColor:
-                                    MaterialStatePropertyAll(Colors.indigo)),
-                            onPressed: () {
-                              if (formKey.currentState!.validate()) {
-                                formKey.currentState!.save();
 
-                                if (totalQuestions == 0) {
-                                  Get.defaultDialog(
-                                      title: "Alert",
-                                      titleStyle: const TextStyle(
-                                        color: Colors.red,
-                                      ),
-                                      content: const Center(
-                                        child: Text(
-                                            "Please make sure that you have been entered the number of total questions!"),
-                                      ),
-                                      confirmTextColor: Colors.white,
-                                      buttonColor: Colors.indigo,
-                                      onConfirm: () {
-                                        Get.back();
-                                      });
-                                }
-                              }
-                            },
-                            child: const Text("Enter Questions")),
-                        const SizedBox(height: 20),
-                        Visibility(
-                          visible: totalQuestions != 0,
-                          child: ListView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            primary: false,
-                            itemCount: totalQuestions,
-                            itemBuilder: (context, index) {
-                              print("$index");
-                              return Container(
-                                margin: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(color: Colors.teal),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                width: Get.width,
-                                padding: const EdgeInsets.all(10),
-                                child: Column(
-                                  children: [
-                                    ///question
-                                    TextFormField(
-                                      onChanged: (String? value) {
-                                        questionsList[index].question = value;
-                                        setState(() {});
-                                      },
-                                      initialValue:
-                                          questionsList[index].question ?? "",
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return "This field is mandatory to fill.";
-                                        }
-                                        return null;
-                                      },
-                                      decoration: getInputDecoration(
-                                          labelText: "Question ${index + 1}",
-                                          hintText: "Ex: What is Software?"),
-                                    ),
-                                    const SizedBox(height: 10),
-
-                                    ///question expression
-                                    MathField(
-                                      variables: const [
-                                        "a",
-                                        "b",
-                                        "c",
-                                        "x",
-                                        "y",
-                                        "z"
-                                      ],
-                                      onChanged: (value) {
-                                        questionsList[index]
-                                            .questionExpression = value;
-                                        setState(() {});
-                                        print(
-                                            "Hit:${questionsList[index].questionExpression}");
-                                      },
-                                      decoration: getInputDecoration(
-                                          labelText: "Question Expression",
-                                          hintText: "Ex: (2/3)+(x/y)=23/7"),
-                                    ),
-                                    const SizedBox(height: 15),
-                                    ///////////////////////////////////////////////
-                                    ///opt 1
-                                    TextFormField(
-                                      onChanged: (String? value) {
-                                        questionsList[index].option1 = value;
-                                        setState(() {});
-                                      },
-                                      initialValue:
-                                          questionsList[index].option1 ?? "",
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return "This field is mandatory to fill.";
-                                        }
-                                        return null;
-                                      },
-                                      decoration: getInputDecoration(
-                                          labelText: "Option 1",
-                                          hintText:
-                                              "Ex: Software is a set of instructions, data or programs used to operate computers and execute specific tasks."),
-                                    ),
-                                    const SizedBox(height: 10),
-
-                                    ///opt1 expression
-                                    MathField(
-                                      variables: const [
-                                        "a",
-                                        "b",
-                                        "c",
-                                        "x",
-                                        "y",
-                                        "z"
-                                      ],
-                                      onChanged: (value) {
-                                        questionsList[index].expression1 =
-                                            value;
-                                        setState(() {});
-                                        print(
-                                            "Hit:${questionsList[index].expression1}");
-                                      },
-                                      decoration: getInputDecoration(
-                                          labelText: "Option 1 Expression",
-                                          hintText: "Ex: (2/3)+(x/y)=23/7"),
-                                    ),
-                                    const SizedBox(height: 15),
-                                    ////////////////////////////////////////////////
-                                    ///opt 2
-                                    TextFormField(
-                                      onChanged: (String? value) {
-                                        questionsList[index].option2 = value;
-                                        setState(() {});
-                                      },
-                                      initialValue:
-                                          questionsList[index].option2 ?? "",
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return "This field is mandatory to fill.";
-                                        }
-                                        return null;
-                                      },
-                                      decoration: getInputDecoration(
-                                          labelText: "Option 2",
-                                          hintText:
-                                              "Ex: Software is a set of instructions, data or programs used to operate computers and execute specific tasks."),
-                                    ),
-                                    const SizedBox(height: 10),
-
-                                    ///opt2 expression
-                                    MathField(
-                                      variables: const [
-                                        "a",
-                                        "b",
-                                        "c",
-                                        "x",
-                                        "y",
-                                        "z"
-                                      ],
-                                      onChanged: (value) {
-                                        questionsList[index].expression2 =
-                                            value;
-                                        setState(() {});
-                                        print(
-                                            "Hit:${questionsList[index].expression2}");
-                                      },
-                                      decoration: getInputDecoration(
-                                          labelText: "Option 2 Expression",
-                                          hintText: "Ex: (2/3)+(x/y)=23/7"),
-                                    ),
-                                    const SizedBox(height: 15),
-                                    ////////////////////////////////////////////////
-                                    ///opt 3
-                                    TextFormField(
-                                      onChanged: (String? value) {
-                                        questionsList[index].option3 = value;
-                                        setState(() {});
-                                        print("List:${questionsList.asMap()}");
-                                      },
-                                      initialValue:
-                                          questionsList[index].option3 ?? "",
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return "This field is mandatory to fill.";
-                                        }
-                                        return null;
-                                      },
-                                      decoration: getInputDecoration(
-                                          labelText: "Option 3",
-                                          hintText:
-                                              "Ex: Software is a set of instructions, data or programs used to operate computers and execute specific tasks."),
-                                    ),
-                                    const SizedBox(height: 10),
-
-                                    ///opt3 expression
-                                    MathField(
-                                      variables: const [
-                                        "a",
-                                        "b",
-                                        "c",
-                                        "x",
-                                        "y",
-                                        "z"
-                                      ],
-                                      onChanged: (value) {
-                                        questionsList[index].expression3 =
-                                            value;
-                                        setState(() {});
-                                        print(
-                                            "Hit:${questionsList[index].expression3}");
-                                      },
-                                      decoration: getInputDecoration(
-                                          labelText: "Option 3 Expression",
-                                          hintText: "Ex: (2/3)+(x/y)=23/7"),
-                                    ),
-                                    const SizedBox(height: 15),
-                                    /////////////////////////////////////////////////////
-                                    ///opt 4
-                                    TextFormField(
-                                      onChanged: (String value) {
-                                        questionsList[index].option4 = value;
-                                        setState(() {});
-                                      },
-                                      initialValue:
-                                          questionsList[index].option4 ?? "",
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return "This field is mandatory to fill.";
-                                        }
-                                        return null;
-                                      },
-                                      decoration: getInputDecoration(
-                                          labelText: "Option 4",
-                                          hintText:
-                                              "Ex: Software is a set of instructions, data or programs used to operate computers and execute specific tasks."),
-                                    ),
-                                    const SizedBox(height: 10),
-
-                                    ///opt4 expression
-                                    MathField(
-                                      variables: const [
-                                        "a",
-                                        "b",
-                                        "c",
-                                        "x",
-                                        "y",
-                                        "z"
-                                      ],
-                                      onChanged: (value) {
-                                        questionsList[index].expression4 =
-                                            value;
-                                        setState(() {});
-                                        print(
-                                            "Hit:${questionsList[index].expression4}");
-                                      },
-                                      decoration: getInputDecoration(
-                                          labelText: "Option 4 Expression",
-                                          hintText: "Ex: (2/3)+(x/y)=23/7"),
-                                    ),
-                                    const SizedBox(height: 15),
-                                    ////////////////////////////////////////////////////
-                                    ///choose correct option
-                                    DropdownButtonFormField(
-                                      decoration: getInputDecoration(
-                                        labelText: "Choose Correct Option",
-                                        hintText: "Choose Answer",
-                                      ),
-                                      items: [
-                                        questionsList[index].option1 ?? "A",
-                                        questionsList[index].option2 ?? "B",
-                                        questionsList[index].option3 ?? "C",
-                                        questionsList[index].option4 ?? "D",
-                                      ]
-                                          .map((e) => DropdownMenuItem(
-                                              value: e, child: Text(e)))
-                                          .toList(),
-                                      onChanged: (value) {
-                                        questionsList[index].correctOpt = value;
-                                        setState(() {});
-                                      },
-                                      value: questionsList[index].correctOpt,
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
+                        ///total marks
+                        TextFormField(
+                          controller: totalMarksController,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          keyboardType: TextInputType.number,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return "This field is mandatory to fill.";
+                            }
+                            return null;
+                          },
+                          decoration: getInputDecoration(
+                            labelText: "Total Marks ",
+                            hintText: "Ex: 10, 50, 100, 200 etc.",
                           ),
                         ),
-                        const SizedBox(height: 15),
+                        const SizedBox(height: 20),
+
+                        ///End Date
+                        GestureDetector(
+                          onTap: () async {
+                            DateTime? pickedDate = await showDatePicker(
+                                context: context,
+                                //context of current state
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(2000),
+                                //DateTime.now() - not to allow to choose before today.
+                                lastDate: DateTime(2101));
+
+                            if (pickedDate != null) {
+                              if (kDebugMode) {
+                                print(pickedDate);
+                              } //pickedDate output format => 2021-03-10 00:00:00.000
+                              String formattedDate =
+                                  DateFormat('yyyy-MM-dd').format(pickedDate);
+                              if (kDebugMode) {
+                                print(formattedDate);
+                              } //formatted date output using intl package =>  2021-03-16
+                              endDateController.text = formattedDate;
+                            } else {
+                              if (kDebugMode) {
+                                print("Date is not selected");
+                              }
+                            }
+                          },
+                          child: TextFormField(
+                            controller: endDateController,
+                            enabled: false,
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return "This field is mandatory to fill.";
+                              }
+                              return null;
+                            },
+                            decoration: getInputDecoration(
+                              labelText: "End Date ",
+                              hintText: "yyyy-MM-dd",
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
                       ],
                     ),
                   ),
@@ -527,10 +329,31 @@ class _EditTestScreenState extends State<EditTestScreen> {
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
                         ///hit api here
-                        print("Questions List:${questionsList.asMap()}");
-                        print("1:${questionsList[0].toJson()}");
-                        print("2:${questionsList[1].toJson()}");
-                        print("3:${questionsList[2].toJson()}");
+                        TestController().updateTestInformation(
+                          testId: selectedModel!.testId.toString(),
+                          testName: testNameController.text,
+                          startDate: selectedModel!.startDate.toString(),
+                          endDate: endDateController.text,
+                          totalQuestions: selectedModel!.totalQuestions!,
+                          totalMarks: int.parse(totalMarksController.text),
+                          showedQuestion:
+                              int.parse(showedQuestionsController.text),
+                          onSuccess: () {
+                            formKey.currentState?.reset();
+                            selectedModel = GetTestModel();
+                            testNameController.text = "";
+                            totalQuestionsController.text = "";
+                            totalTimeController.text = "";
+                            totalMarksController.text = "";
+                            showedQuestionsController.text = "";
+                            endDateController.text = "";
+                            startDateController.text = "";
+                          },
+                        );
+                        // print("Questions List:${questionsList.asMap()}");
+                        // print("1:${questionsList[0].toJson()}");
+                        // print("2:${questionsList[1].toJson()}");
+                        // print("3:${questionsList[2].toJson()}");
                       }
                     },
                     icon: const Icon(
@@ -538,7 +361,7 @@ class _EditTestScreenState extends State<EditTestScreen> {
                       size: 18,
                       color: Colors.white,
                     ),
-                    label: const Text("Add Test")),
+                    label: const Text("Update Test")),
               ),
             ],
           ),

@@ -13,6 +13,20 @@ import 'package:test_engine_lms/utils/my_dialogs.dart';
 import 'package:test_engine_lms/utils/storage_service.dart';
 
 class DataController extends GetxController {
+  RxBool searchingGroups = false.obs;
+  RxList<GroupModel> groupModelList = <GroupModel>[].obs;
+  RxList<GroupModel> filteredGroupModelList = <GroupModel>[].obs;
+
+  RxBool searchingStudents = false.obs;
+  RxList<GetStudentsModel> studentModelList = <GetStudentsModel>[].obs;
+  RxList<GetStudentsModel> filteredStudentModelList = <GetStudentsModel>[].obs;
+
+  RxBool searchingNotices = false.obs;
+  RxList<GetNotificationModel> notificationModelList =
+      <GetNotificationModel>[].obs;
+  RxList<GetNotificationModel> filteredNotificationModelList =
+      <GetNotificationModel>[].obs;
+
   ///add group
   addGroup(
       {required String groupName, required void Function() onSuccess}) async {
@@ -48,31 +62,44 @@ class DataController extends GetxController {
   }
 
   ///get all groups
-  Future<List<GroupModel>> getAllGroups() async {
-    List<GroupModel> modelList = [];
+  getAllGroups() async {
+    searchingGroups.value = true;
     var id = await StorageService().getData(key: "userId");
     int currentInstituteId = int.parse(id.toString());
     try {
       await dio_package.Dio()
           .get(
-              "${Constants.baseUrl}/getAllCourseByInstituteId/${instituteId != 0 ? instituteId : currentInstituteId}")
+              "${Constants.baseUrl}/getAllCourseByInstituteId/${instituteId != 0 ? instituteId : currentInstituteId}",
+              options: dio_package.Options(
+                  headers: {"ngrok-skip-browser-warning": true}))
           .then((value) {
-        print(value.data);
-        value.data.reversed.forEach((element) {
-          modelList.add(GroupModel.fromJson(element));
-        });
+        searchingGroups.value = false;
+        if (kDebugMode) {
+          print(value.data);
+        }
+        if (value.statusCode == 200) {
+          groupModelList.clear();
+          filteredGroupModelList.clear();
+          value.data.reversed.forEach((element) {
+            groupModelList.add(GroupModel.fromJson(element));
+            filteredGroupModelList.add(GroupModel.fromJson(element));
+          });
+        }
       });
     } catch (e) {
-      print("Error while getting groups:$e");
+      searchingGroups.value = false;
+      if (kDebugMode) {
+        print("Error while getting groups:$e");
+      }
     }
-    return modelList;
   }
 
   ///update group
-  updateGroup(
-      {required GroupModel model,
-      required String newGroupName,
-      required void Function() onSuccess}) async {
+  updateGroup({
+    required GroupModel model,
+    required String newGroupName,
+    required void Function() onSuccess,
+  }) async {
     getLoadingDialogue(title: "Updating Group...");
 
     var data = json.encode({"groupName": newGroupName, "multipleTests": []});
@@ -157,47 +184,93 @@ class DataController extends GetxController {
       if (kDebugMode) {
         print("Error while adding student:$e");
       }
-      getErrorDialogue(errorMessage: e.toString());
+      getErrorDialogue(
+          errorMessage:
+              "Email ID is already available or unknown error occurred.\n\n $e");
     }
   }
 
-  ///get all students
-  Future<List<GetStudentsModel>> getAllStudents() async {
-    List<GetStudentsModel> modelList = [];
+  ///get all students todo
+  getAllStudents() async {
+    searchingStudents.value = true;
+    var id = await StorageService().getData(key: "userId");
+    var header = await StorageService().getHeaders();
+
+    int currentInstituteId = int.parse(id);
+
     try {
       await dio_package.Dio()
-          .get("${Constants.baseUrl}/getAllStudentByInstituteId/1")
+          .get(
+              "${Constants.baseUrl}/getAllStudentByInstituteId/${instituteId != 0 ? instituteId : currentInstituteId}",
+              options: dio_package.Options(headers: header))
           .then((value) {
+        searchingStudents.value = false;
         if (value.statusCode == 200) {
+          studentModelList.clear();
+          filteredStudentModelList.clear();
           value.data.reversed.forEach((element) {
-            modelList.add(GetStudentsModel.fromJson(element));
+            studentModelList.add(GetStudentsModel.fromJson(element));
+            filteredStudentModelList.add(GetStudentsModel.fromJson(element));
           });
         }
       });
     } catch (e) {
-      print("Error while getting students:$e");
+      searchingStudents.value = false;
+      if (kDebugMode) {
+        print("Error while getting students:$e");
+      }
     }
-    return modelList;
   }
 
   ///update student
-  updateStudent(
-      {required String userName,
-      required String email,
-      required String mobile}) {
+  updateStudent({
+    required int studentId,
+    required String userName,
+    required String mobile,
+    required void Function() onSuccess,
+    required FilePickerResult? image,
+  }) async {
+    getLoadingDialogue(title: "Updating Student...");
     var data = json.encode({
-      {
-        "userName": "vibha",
-        "password": "vibha",
-        "mobile": "9090909090",
-        "email": "vibha@gmail.com",
-        "registrationDate": "2022-08-01",
-        "optcoursesIds": [1, 2, 3, 4]
-      }
+      "userName": userName,
+      "password": "vibha",
+      "mobile": mobile,
+      "email": "vibha@gmail.com",
+      "registrationDate": "2022-08-01",
+      "optcoursesIds": [1, 2, 3, 4]
     });
+
+    print("Sending data is:$data");
+
+    dio_package.MultipartFile? imagefile;
+    if (image != null) {
+      imagefile = dio_package.MultipartFile.fromBytes(image.files.first.bytes!,
+          filename: image.files.first.name);
+    }
+
+    dio_package.FormData formData =
+        dio_package.FormData.fromMap({"data": data, "imagefile": imagefile});
+
+    try {
+      await dio_package.Dio()
+          .put("${Constants.baseUrl}/updateStudentById/$studentId",
+              data: formData)
+          .then((value) {
+        if (value.statusCode == 200) {
+          removeDialogue();
+          onSuccess.call();
+          getSuccessDialogue(message: "Student Update Successfully.");
+        }
+      });
+    } catch (e) {
+      removeDialogue();
+      if (kDebugMode) {
+        print("Error while updating student:$e");
+      }
+      getErrorDialogue(errorMessage: e.toString());
+    }
   }
 
-  ///
   /// add notice
   addNotice(
       {required String content, required void Function() onSuccess}) async {
@@ -239,27 +312,62 @@ class DataController extends GetxController {
   }
 
   ///get all notifications
-  Future<List<GetNotificationModel>> getAllNotifications() async {
-    List<GetNotificationModel> modelList = [];
+  getAllNotifications() async {
+    searchingNotices.value = true;
     try {
       var id = await StorageService().getData(key: "userId");
+
       int currentInstituteId = int.parse(id);
 
       await dio_package.Dio()
           .get(
               "${Constants.baseUrl}/getAllNoticeByInstituteId/${instituteId != 0 ? instituteId : currentInstituteId}")
           .then((value) {
+        searchingNotices.value = false;
         if (value.statusCode == 200) {
-          value.data.forEach((element) {
-            modelList.add(GetNotificationModel.fromJson(element));
+          notificationModelList.clear();
+          filteredNotificationModelList.clear();
+          value.data.reversed.forEach((element) {
+            notificationModelList.add(GetNotificationModel.fromJson(element));
+            filteredNotificationModelList
+                .add(GetNotificationModel.fromJson(element));
           });
         }
       });
     } catch (e) {
+      searchingNotices.value = false;
       if (kDebugMode) {
         print("Error while getting notifications:$e");
       }
     }
-    return modelList;
+  }
+
+  ///update a notice
+  updateNotice(
+      {required String notificationId,
+      required String newContent,
+      required void Function() onSuccess}) async {
+    getLoadingDialogue(title: "Updating notice...");
+    var data = json.encode({"content": newContent});
+    var header = await StorageService().getHeaders();
+    try {
+      await dio_package.Dio()
+          .put("${Constants.baseUrl}/updateNotificationById/$notificationId",
+              data: data, options: dio_package.Options(headers: header))
+          .then((value) {
+        removeDialogue();
+        if (value.statusCode == 200) {
+          ///success
+          onSuccess.call();
+          getSuccessDialogue(message: "Notification updated successfully.");
+        }
+      });
+    } catch (e) {
+      removeDialogue();
+      if (kDebugMode) {
+        print("Error while updating notice:$e");
+      }
+      getErrorDialogue(errorMessage: e.toString());
+    }
   }
 }
