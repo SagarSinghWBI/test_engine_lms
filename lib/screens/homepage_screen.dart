@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:test_engine_lms/controllers/dataController.dart';
 import 'package:test_engine_lms/controllers/edit_questions_controller.dart';
-import 'package:test_engine_lms/controllers/test_controller.dart';
 import 'package:test_engine_lms/models/sidebar_model.dart';
 import 'package:test_engine_lms/screens/login_screen.dart';
 import 'package:test_engine_lms/screens/other_screens/edit_forms/Edit_Institute_Profile.dart';
@@ -83,7 +82,6 @@ class _HomePageState extends State<HomePage> {
     // TODO: implement initState
     super.initState();
     Get.put(DataController());
-    Get.put(TestController());
     Get.put(EditQuestionsController());
   }
 

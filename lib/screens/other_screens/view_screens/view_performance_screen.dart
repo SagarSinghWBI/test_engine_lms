@@ -155,7 +155,7 @@ class _ShowPerformanceScreenState extends State<ShowPerformanceScreen> {
                   // crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Name: ${studentPerformanceModel.studentName.toString()}',
+                      'Name: ${widget.studentModel.userName.toString()}',
                       style: const TextStyle(
                           color: Colors.white,
                           fontSize: 20,

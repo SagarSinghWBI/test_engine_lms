@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:math_keyboard/math_keyboard.dart';
-import 'package:test_engine_lms/controllers/test_controller.dart';
+import 'package:test_engine_lms/controllers/dataController.dart';
 import 'package:test_engine_lms/models/GetTestModel.dart';
-import 'package:test_engine_lms/models/GroupModel.dart';
 import 'package:test_engine_lms/models/Questions.dart';
 import 'package:test_engine_lms/utils/constants.dart';
 import 'package:test_engine_lms/utils/ui_widgets.dart';
@@ -329,7 +327,7 @@ class _EditTestScreenState extends State<EditTestScreen> {
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
                         ///hit api here
-                        TestController().updateTestInformation(
+                        DataController().updateTestInformation(
                           testId: selectedModel!.testId.toString(),
                           testName: testNameController.text,
                           startDate: selectedModel!.startDate.toString(),

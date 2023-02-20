@@ -1,9 +1,7 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:test_engine_lms/controllers/edit_questions_controller.dart';
-import 'package:test_engine_lms/controllers/test_controller.dart';
-import 'package:test_engine_lms/models/GetTestModel.dart';
+import 'package:test_engine_lms/controllers/dataController.dart';
 import 'package:test_engine_lms/screens/other_screens/add_forms/add_bulk_questions_screen.dart';
 import 'package:test_engine_lms/screens/other_screens/add_forms/add_test_screen.dart';
 import 'package:test_engine_lms/screens/other_screens/delete_forms/delete_test_screen.dart';
@@ -25,10 +23,13 @@ class GenerateTestScreen extends StatefulWidget {
 class _GenerateTestScreenState extends State<GenerateTestScreen> {
   @override
   Widget build(BuildContext context) {
-    return GetX<TestController>(
+    return GetX<DataController>(
       initState: (state) {
         if (state.controller!.filteredTestModelList.isEmpty) {
           state.controller?.getAllAvailableTests();
+        }
+        if (state.controller!.groupModelList.isEmpty) {
+          state.controller!.getAllGroups();
         }
       },
       builder: (controller) {
@@ -69,14 +70,16 @@ class _GenerateTestScreenState extends State<GenerateTestScreen> {
                           onTap: () async {
                             ///check for current month limit
                             int testLimit =
-                                await TestController().getInstituteTestData();
+                                await controller.getInstituteTestData();
                             String tests = await StorageService()
                                 .getData(key: "totalTests");
                             int totalTests = int.parse(tests);
                             if (totalTests > testLimit) {
                               getUpgradeSubscriptionDialog();
                             } else {
-                              Get.dialog(const AddTestScreen());
+                              Get.dialog(AddTestScreen(
+                                coursesList: controller.groupModelList,
+                              ));
                             }
                           }),
                     ),

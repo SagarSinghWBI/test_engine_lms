@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:test_engine_lms/controllers/dataController.dart';
-import 'package:test_engine_lms/controllers/test_controller.dart';
 import 'package:test_engine_lms/models/GroupModel.dart';
 import 'package:test_engine_lms/utils/constants.dart';
 import 'package:test_engine_lms/utils/ui_widgets.dart';
 
 class EditGroupCourseScreen extends StatefulWidget {
-  const EditGroupCourseScreen({Key? key, required this.groupCourses}) : super(key: key);
+  const EditGroupCourseScreen({Key? key, required this.groupCourses})
+      : super(key: key);
   final List<GroupModel> groupCourses;
 
   @override
@@ -17,11 +17,11 @@ class EditGroupCourseScreen extends StatefulWidget {
 class _EditGroupCourseScreenState extends State<EditGroupCourseScreen> {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   GroupModel? selectedModel;
+
   ///controllers
   TextEditingController courseNameController = TextEditingController();
 
   var dataController = Get.put(DataController());
-
 
   @override
   void dispose() {

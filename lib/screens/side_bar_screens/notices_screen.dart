@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:test_engine_lms/controllers/dataController.dart';
-import 'package:test_engine_lms/controllers/test_controller.dart';
-import 'package:test_engine_lms/models/GetNotificationModel.dart';
 import 'package:test_engine_lms/screens/other_screens/add_forms/add_notice_screen.dart';
 import 'package:test_engine_lms/utils/constants.dart';
 import 'package:test_engine_lms/utils/ui_widgets.dart';

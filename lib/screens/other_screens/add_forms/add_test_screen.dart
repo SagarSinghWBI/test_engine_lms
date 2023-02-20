@@ -7,7 +7,6 @@ import 'package:intl/intl.dart';
 import 'package:math_keyboard/math_keyboard.dart';
 import 'package:test_engine_lms/controllers/auth_controller.dart';
 import 'package:test_engine_lms/controllers/dataController.dart';
-import 'package:test_engine_lms/controllers/test_controller.dart';
 import 'package:test_engine_lms/models/AddQuestionsModel.dart';
 import 'package:test_engine_lms/models/GroupModel.dart';
 import 'package:test_engine_lms/utils/constants.dart';
@@ -17,7 +16,9 @@ import 'package:test_engine_lms/utils/storage_service.dart';
 import 'package:test_engine_lms/utils/ui_widgets.dart';
 
 class AddTestScreen extends StatefulWidget {
-  const AddTestScreen({Key? key}) : super(key: key);
+  const AddTestScreen({Key? key, required this.coursesList}) : super(key: key);
+
+  final List<GroupModel> coursesList;
 
   @override
   State<AddTestScreen> createState() => _AddTestScreenState();
@@ -33,7 +34,6 @@ class _AddTestScreenState extends State<AddTestScreen> {
   TextEditingController pdfController = TextEditingController();
   TextEditingController totalQuestionsController = TextEditingController();
 
-  List<GroupModel> coursesList = [];
   GroupModel? selectedModel;
   int totalQuestions = 0;
   int questionLimit = 1;
@@ -43,7 +43,6 @@ class _AddTestScreenState extends State<AddTestScreen> {
 
   getAllCourses() async {
     try {
-      coursesList = await dataController.getAllGroups();
       var limit = await StorageService().getData(key: "questionLimit");
       questionLimit = int.parse(limit);
       setState(() {});
@@ -144,7 +143,7 @@ class _AddTestScreenState extends State<AddTestScreen> {
                             isDense: true,
                             decoration: getInputDecoration(
                                 labelText: "Course Group", hintText: ""),
-                            items: coursesList.map((e) {
+                            items: widget.coursesList.map((e) {
                               return DropdownMenuItem<GroupModel>(
                                 value: e,
                                 child: Text(e.groupName.toString()),
@@ -756,7 +755,7 @@ class _AddTestScreenState extends State<AddTestScreen> {
                       if (formKey.currentState!.validate()) {
                         ///check for current month limit
                         int testLimit =
-                            await TestController().getInstituteTestData();
+                            await DataController().getInstituteTestData();
 
                         String tests =
                             await StorageService().getData(key: "totalTests");
@@ -765,7 +764,7 @@ class _AddTestScreenState extends State<AddTestScreen> {
                           getUpgradeSubscriptionDialog();
                         } else {
                           ///hit api here
-                          TestController().addTest(
+                          DataController().addTest(
                             pdfAnswerFile: pdfFile,
                             totalTime: int.parse(totalTimeController.text),
                             endDate: endDateController.text,
