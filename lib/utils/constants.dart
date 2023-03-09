@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 int instituteId = 0;
@@ -12,6 +14,12 @@ class Constants {
   static Color headerColor = Colors.white;
   static Color dataColor = Colors.white;
   static Color textColor = Colors.white;
+
+  final String _username = "";
+  final String _password = "";
+
+  getBasicAuth() =>
+      'Basic ${base64Encode(utf8.encode('$_username:$_password'))}';
 
   ///links to another website
   static String buySubscriptionURL = "https://testmakeronline.com";

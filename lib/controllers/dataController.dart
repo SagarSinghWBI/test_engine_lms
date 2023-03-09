@@ -532,6 +532,7 @@ class DataController extends GetxController {
           .then((value) {
         searchingTests.value = false;
         if (value.statusCode == 200) {
+          print("test data:${value.data}");
           value.data.reversed.forEach((element) {
             testModelList.add(GetTestModel.fromJson(element));
             filteredTestModelList.add(GetTestModel.fromJson(element));
