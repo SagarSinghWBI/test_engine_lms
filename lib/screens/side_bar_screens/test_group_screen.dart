@@ -8,7 +8,6 @@ import 'package:test_engine_lms/screens/other_screens/edit_forms/edit_course_gro
 import 'package:test_engine_lms/utils/constants.dart';
 import 'package:test_engine_lms/utils/ui_widgets.dart';
 
-
 class TestGroupScreen extends StatefulWidget {
   const TestGroupScreen({Key? key}) : super(key: key);
 
@@ -56,7 +55,7 @@ class _TestGroupScreenState extends State<TestGroupScreen> {
                 MyButton(
                     icon: const Icon(Icons.add, size: 25, color: Colors.white),
                     width: Get.width,
-                    text: "Add Course Group",
+                    text: "Add Group",
                     onTap: () {
                       Get.dialog(const AddGroupCourseScreen());
                     }),
@@ -91,16 +90,40 @@ class _TestGroupScreenState extends State<TestGroupScreen> {
                                   ),
                                   Row(
                                     children: [
-                                      IconButton(
-                                          tooltip: "Refresh",
+                                      ElevatedButton.icon(
+                                          style: ButtonStyle(
+                                              backgroundColor:
+                                                  const MaterialStatePropertyAll(
+                                                      Colors.white),
+                                              shape: MaterialStatePropertyAll(
+                                                  RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20)))),
                                           onPressed: () {
                                             controller.getAllGroups();
                                           },
-                                          icon: const Icon(
+                                          icon: Icon(
                                             Icons.refresh,
                                             size: 18,
-                                            color: Colors.white,
+                                            color: Constants.primaryColor,
+                                          ),
+                                          label: Text(
+                                            "Refresh",
+                                            style: TextStyle(
+                                                color: Constants.primaryColor,
+                                                fontWeight: FontWeight.bold),
                                           )),
+                                      // IconButton(
+                                      //     tooltip: "Refresh",
+                                      //     onPressed: () {
+                                      //       controller.getAllGroups();
+                                      //     },
+                                      //     icon: const Icon(
+                                      //       Icons.refresh,
+                                      //       size: 18,
+                                      //       color: Colors.white,
+                                      //     )),
                                       IconButton(
                                         tooltip: "Edit Course Groups",
                                         onPressed: () {
@@ -170,20 +193,22 @@ class _TestGroupScreenState extends State<TestGroupScreen> {
                                                 const CircularProgressIndicator())
                                         : controller
                                                 .filteredGroupModelList.isEmpty
-                                            ? Container(
-                                                alignment: Alignment.center,
-                                                decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            20)),
-                                                child: const Text(
-                                                  "No Data Found !",
-                                                  style: TextStyle(
-                                                      color: Colors.red,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 10),
+                                            ? Expanded(
+                                                child: Container(
+                                                  alignment: Alignment.center,
+                                                  decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20)),
+                                                  child: const Text(
+                                                    "No Data Found !",
+                                                    style: TextStyle(
+                                                        color: Colors.red,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 10),
+                                                  ),
                                                 ),
                                               )
                                             : Expanded(

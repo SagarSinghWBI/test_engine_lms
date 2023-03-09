@@ -65,7 +65,7 @@ class _AddGroupCourseScreenState extends State<AddGroupCourseScreen> {
                       Container(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            "Add Course Group",
+                            "Add Group",
                             style: TextStyle(
                               color: Constants.primaryColor,
                               fontWeight: FontWeight.bold,
@@ -186,7 +186,7 @@ class _AddGroupCourseScreenState extends State<AddGroupCourseScreen> {
                       Icons.add,
                       color: Colors.white,
                     ),
-                    label: const Text("Add this Group")),
+                    label: const Text("Save")),
               ),
             ],
           ),

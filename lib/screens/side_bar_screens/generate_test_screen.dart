@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:test_engine_lms/controllers/dataController.dart';
 import 'package:test_engine_lms/screens/other_screens/add_forms/add_bulk_questions_screen.dart';
+import 'package:test_engine_lms/screens/other_screens/add_forms/add_questions_screen.dart';
 import 'package:test_engine_lms/screens/other_screens/add_forms/add_test_screen.dart';
 import 'package:test_engine_lms/screens/other_screens/delete_forms/delete_test_screen.dart';
 import 'package:test_engine_lms/screens/other_screens/edit_forms/edit_questions_screen.dart';
@@ -96,7 +97,9 @@ class _GenerateTestScreenState extends State<GenerateTestScreen> {
 
                             print("price inr is :$priceInr");
                             if (price != 0.0) {
-                              Get.dialog(const AddBulkQuestions());
+                              Get.dialog(AddBulkQuestions(
+                                model: controller.testModelList,
+                              ));
                             } else {
                               Get.snackbar("Error",
                                   "Your Subscription is free.\nThe Bulk Data Uploading Feature is only available in paid Subscriptions.",
@@ -158,17 +161,41 @@ class _GenerateTestScreenState extends State<GenerateTestScreen> {
                             ),
                             Row(
                               children: [
-                                IconButton(
-                                    tooltip: "Refresh",
+                                ElevatedButton.icon(
+                                    style: ButtonStyle(
+                                        backgroundColor:
+                                            const MaterialStatePropertyAll(
+                                                Colors.white),
+                                        shape: MaterialStatePropertyAll(
+                                            RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        20)))),
                                     onPressed: () {
                                       controller.getAllAvailableTests();
-                                      // Get.dialog(const DeleteTestScreen());
                                     },
-                                    icon: const Icon(
+                                    icon: Icon(
                                       Icons.refresh,
                                       size: 18,
-                                      color: Colors.white,
+                                      color: Constants.primaryColor,
+                                    ),
+                                    label: Text(
+                                      "Refresh",
+                                      style: TextStyle(
+                                          color: Constants.primaryColor,
+                                          fontWeight: FontWeight.bold),
                                     )),
+                                // IconButton(
+                                //     tooltip: "Refresh",
+                                //     onPressed: () {
+                                //       controller.getAllAvailableTests();
+                                //       // Get.dialog(const DeleteTestScreen());
+                                //     },
+                                //     icon: const Icon(
+                                //       Icons.refresh,
+                                //       size: 18,
+                                //       color: Colors.white,
+                                //     )),
                                 IconButton(
                                   tooltip: "Edit Tests",
                                   onPressed: () {
@@ -262,6 +289,7 @@ class _GenerateTestScreenState extends State<GenerateTestScreen> {
                                             )),
                                       )
                                     : DataTable2(
+                                        columnSpacing: 0.5,
                                         decoration: BoxDecoration(
                                           // color: Constants.secondaryColor,
                                           borderRadius:
@@ -274,15 +302,30 @@ class _GenerateTestScreenState extends State<GenerateTestScreen> {
                                           fontWeight: FontWeight.bold,
                                         ),
                                         dataTextStyle: TextStyle(
-                                            color: Constants.dataColor,
-                                            fontWeight: FontWeight.w400),
-                                        columns: const [
-                                          DataColumn2(label: Text("ID")),
-                                          DataColumn2(label: Text("Name")),
-                                          DataColumn2(label: Text("Questions")),
-                                          DataColumn2(label: Text("Time")),
-                                          DataColumn2(
+                                          color: Constants.dataColor,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                        columns: [
+                                          const DataColumn2(label: Text("ID")),
+                                          const DataColumn2(
+                                              label: Text("Name")),
+                                          const DataColumn2(
+                                              label: Text("Questions")),
+                                          const DataColumn2(
+                                              label: Text("Time")),
+                                          const DataColumn2(
                                               label: Text("Start Date")),
+                                          const DataColumn2(
+                                              label: Text("Add Questions")),
+                                          DataColumn2(
+                                              label: Container(
+                                            alignment: Alignment.center,
+                                            width: Get.width,
+                                            child: const Text(
+                                              "Show Status",
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          )),
                                         ],
                                         rows: List.generate(
                                             controller.filteredTestModelList
@@ -313,6 +356,104 @@ class _GenerateTestScreenState extends State<GenerateTestScreen> {
                                                 .filteredTestModelList[index]
                                                 .startDate
                                                 .toString())),
+                                            DataCell(controller
+                                                    .filteredTestModelList[
+                                                        index]
+                                                    .questions!
+                                                    .isNotEmpty
+                                                ? const Text("Available")
+                                                : ElevatedButton.icon(
+                                                    style: ButtonStyle(
+                                                      side: MaterialStatePropertyAll(
+                                                          BorderSide(
+                                                              color: Constants
+                                                                  .secondaryColor)),
+                                                      shape:
+                                                          MaterialStatePropertyAll(
+                                                        RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(20),
+                                                        ),
+                                                      ),
+                                                      backgroundColor:
+                                                          MaterialStatePropertyAll(
+                                                        Constants.primaryColor,
+                                                      ),
+                                                    ),
+                                                    onPressed: () async {
+                                                      if (controller
+                                                              .filteredTestModelList[
+                                                                  index]
+                                                              .questions!
+                                                              .length <
+                                                          controller
+                                                              .filteredTestModelList[
+                                                                  index]
+                                                              .totalQuestions!) {
+                                                        Get.dialog(AddQuestionsScreen(
+                                                            testModel: controller
+                                                                    .filteredTestModelList[
+                                                                index]));
+                                                      } else {
+                                                        getErrorDialogue(
+                                                            setHeight: true,
+                                                            errorMessage:
+                                                                "Questions are already available in this test.");
+                                                      }
+                                                    },
+                                                    icon: const Icon(
+                                                      Icons.add,
+                                                      color: Colors.white,
+                                                    ),
+                                                    label: const Text(
+                                                      "Add",
+                                                      style: TextStyle(
+                                                          color: Colors.white),
+                                                    ))),
+                                            DataCell(Tooltip(
+                                              message:
+                                                  "Available Questions:${controller.filteredTestModelList[index].questions!.length}\nPending Questions:${controller.filteredTestModelList[index].totalQuestions! - controller.filteredTestModelList[index].questions!.length}",
+                                              child: Container(
+                                                width: Get.width,
+                                                alignment: Alignment.center,
+                                                padding:
+                                                    const EdgeInsets.all(2),
+                                                margin: const EdgeInsets.all(5),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                ),
+                                                child: Text(
+                                                  controller
+                                                              .filteredTestModelList[
+                                                                  index]
+                                                              .questions!
+                                                              .length ==
+                                                          controller
+                                                              .filteredTestModelList[
+                                                                  index]
+                                                              .totalQuestions
+                                                      ? "Available"
+                                                      : "Not Available",
+                                                  style: TextStyle(
+                                                      color: controller
+                                                                  .filteredTestModelList[
+                                                                      index]
+                                                                  .questions!
+                                                                  .length ==
+                                                              controller
+                                                                  .filteredTestModelList[
+                                                                      index]
+                                                                  .totalQuestions
+                                                          ? Colors.green
+                                                          : Colors.red,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ),
+                                            )),
                                           ]);
                                         }),
                                       )),

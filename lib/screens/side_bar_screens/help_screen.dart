@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:test_engine_lms/models/HelpQuestionsModel.dart';
 import 'package:test_engine_lms/utils/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HelpScreen extends StatefulWidget {
   const HelpScreen({Key? key}) : super(key: key);
@@ -24,7 +25,7 @@ class _HelpScreenState extends State<HelpScreen> {
     HelpQuestionsModel(
       question: "How to contact Administrator?",
       answer:
-          "You can contact Administrator through Email: sagar.webbullindia@gmail.com",
+          "You can contact Administrator through Email: ${Constants.supportEmail}",
     ),
     HelpQuestionsModel(
       question: "How to update our profile?",
@@ -34,7 +35,7 @@ class _HelpScreenState extends State<HelpScreen> {
     HelpQuestionsModel(
       question: "I am unable to login to app or website.",
       answer:
-          "Please contact our administrator through email: sagar.webbullindia@gmail.com",
+          "Please contact our administrator through email: ${Constants.supportEmail}",
     ),
   ];
 
@@ -51,7 +52,7 @@ class _HelpScreenState extends State<HelpScreen> {
     HelpQuestionsModel(
       question: "How to contact Administrator?",
       answer:
-          "You can contact Administrator through Email: sagar.webbullindia@gmail.com",
+          "You can contact Administrator through Email: ${Constants.supportEmail}",
     ),
     HelpQuestionsModel(
       question: "How to update our profile?",
@@ -61,7 +62,7 @@ class _HelpScreenState extends State<HelpScreen> {
     HelpQuestionsModel(
       question: "I am unable to login to app or website.",
       answer:
-          "Please contact our administrator through email: sagar.webbullindia@gmail.com",
+          "Please contact our administrator through email: ${Constants.supportEmail}",
     ),
   ];
 
@@ -94,25 +95,48 @@ class _HelpScreenState extends State<HelpScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Help & Support",
-                    style: TextStyle(
-                      color: Constants.primaryColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  )),
-              const SizedBox(height: 5),
-              Container(
-                alignment: Alignment.centerLeft,
-                height: 5,
-                width: 400,
-                decoration: BoxDecoration(
-                  color: Colors.indigo,
-                  borderRadius: BorderRadius.circular(10),
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "Help & Support",
+                            style: TextStyle(
+                              color: Constants.primaryColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          )),
+                      const SizedBox(height: 5),
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        height: 5,
+                        width: 400,
+                        decoration: BoxDecoration(
+                          color: Colors.indigo,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ],
+                  ),
+                  CircleAvatar(
+                      backgroundColor: Constants.primaryColor,
+                      child: IconButton(
+                        tooltip: "Need more help?",
+                        onPressed: () async {
+                          await launchUrl(
+                              Uri.parse(Constants.helpAndSupportUrl));
+                        },
+                        icon: const Icon(
+                          Icons.help,
+                          color: Colors.white,
+                        ),
+                      )),
+                ],
               ),
               const SizedBox(height: 10),
               TextFormField(

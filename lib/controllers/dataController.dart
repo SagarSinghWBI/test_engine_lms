@@ -68,6 +68,8 @@ class DataController extends GetxController {
     searchingGroups.value = true;
     var id = await StorageService().getData(key: "userId");
     int currentInstituteId = int.parse(id.toString());
+    groupModelList.clear();
+    filteredGroupModelList.clear();
     try {
       await dio_package.Dio()
           .get(
@@ -80,8 +82,6 @@ class DataController extends GetxController {
           print(value.data);
         }
         if (value.statusCode == 200) {
-          groupModelList.clear();
-          filteredGroupModelList.clear();
           value.data.reversed.forEach((element) {
             groupModelList.add(GroupModel.fromJson(element));
             filteredGroupModelList.add(GroupModel.fromJson(element));
@@ -173,9 +173,11 @@ class DataController extends GetxController {
     try {
       await dio_package.Dio()
           .post("${Constants.baseUrl}/addStudent", data: formData)
-          .then((value) {
+          .then((value) async {
         removeDialogue();
         if (value.statusCode == 200) {
+          await sendEmail(email: email, password: password);
+
           ///student added
           onSuccess.call();
           getSuccessDialogue(message: "Student Added Successfully.");
@@ -192,6 +194,27 @@ class DataController extends GetxController {
     }
   }
 
+  sendEmail({required String email, required String password}) async {
+    try {
+      dio_package.FormData formData = dio_package.FormData.fromMap({
+        "file": null,
+        "toEmail": email,
+        "subject": "Welcome to online TestMaker",
+        "body":
+            "We are welcoming you on our testmaker website.\nContinue with the following credentials:\nemail:$email\npassword:$password\n\nAdmin Login URL: https://institute.testmakeronline.com/\nStudent Login URL: https://student.testmakeronline.com/\n\nThank you "
+      });
+      await dio_package.Dio()
+          .post("${Constants.baseUrl}/sendMailWithAttachment", data: formData)
+          .then((value) {
+        if (value.statusCode == 200) {
+          print("Email Sent.>>>>>>>");
+        }
+      });
+    } catch (e) {
+      print("Error while sending mail:$e");
+    }
+  }
+
   ///get all students todo
   getAllStudents() async {
     searchingStudents.value = true;
@@ -199,6 +222,8 @@ class DataController extends GetxController {
     var header = await StorageService().getHeaders();
 
     int currentInstituteId = int.parse(id);
+    studentModelList.clear();
+    filteredStudentModelList.clear();
 
     try {
       await dio_package.Dio()
@@ -208,8 +233,6 @@ class DataController extends GetxController {
           .then((value) {
         searchingStudents.value = false;
         if (value.statusCode == 200) {
-          studentModelList.clear();
-          filteredStudentModelList.clear();
           value.data.reversed.forEach((element) {
             studentModelList.add(GetStudentsModel.fromJson(element));
             filteredStudentModelList.add(GetStudentsModel.fromJson(element));
@@ -294,7 +317,6 @@ class DataController extends GetxController {
       if (kDebugMode) {
         print("Sending data is:$data");
       }
-
       await dio_package.Dio()
           .post("${Constants.baseUrl}/addNotice", data: data)
           .then((value) {
@@ -320,6 +342,8 @@ class DataController extends GetxController {
       var id = await StorageService().getData(key: "userId");
 
       int currentInstituteId = int.parse(id);
+      notificationModelList.clear();
+      filteredNotificationModelList.clear();
 
       await dio_package.Dio()
           .get(
@@ -327,8 +351,6 @@ class DataController extends GetxController {
           .then((value) {
         searchingNotices.value = false;
         if (value.statusCode == 200) {
-          notificationModelList.clear();
-          filteredNotificationModelList.clear();
           value.data.reversed.forEach((element) {
             notificationModelList.add(GetNotificationModel.fromJson(element));
             filteredNotificationModelList
@@ -456,7 +478,7 @@ class DataController extends GetxController {
       "totalMarks": totalMarks,
       "totalTime": totalTime,
       "showedQuestion": showedQuestion,
-      "questions": questionsList,
+      "questions": questionsList.isEmpty ? null : questionsList,
       "groupCourse": {"groupId": groupId}
     });
 
@@ -498,6 +520,8 @@ class DataController extends GetxController {
   ///get All tests
   getAllAvailableTests() async {
     searchingTests.value = true;
+    testModelList.clear();
+    filteredTestModelList.clear();
     try {
       var header = await StorageService().getHeaders();
       var currentInstituteId = await StorageService().getData(key: "userId");
@@ -508,8 +532,6 @@ class DataController extends GetxController {
           .then((value) {
         searchingTests.value = false;
         if (value.statusCode == 200) {
-          testModelList.clear();
-          filteredTestModelList.clear();
           value.data.reversed.forEach((element) {
             testModelList.add(GetTestModel.fromJson(element));
             filteredTestModelList.add(GetTestModel.fromJson(element));
@@ -560,6 +582,134 @@ class DataController extends GetxController {
       if (kDebugMode) {
         print("Error while updating test:$e");
       }
+      getErrorDialogue(errorMessage: e.toString());
+    }
+  }
+
+  ///delete student api
+  deleteStudent(
+      {required String studentId, required void Function() onSuccess}) async {
+    getLoadingDialogue(title: "Deleting Student...");
+    try {
+      await dio_package.Dio()
+          .delete("${Constants.baseUrl}/deleteStudentById/$studentId")
+          .then((value) {
+        removeDialogue();
+        if (value.statusCode == 200) {
+          onSuccess.call();
+
+          ///when student deleted successfully
+          getSuccessDialogue(message: "Student Delete Successfully.");
+        }
+      });
+    } catch (e) {
+      removeDialogue();
+      getErrorDialogue(errorMessage: e.toString());
+    }
+  }
+
+  ///delete group
+  deleteGroup(
+      {required String groupId, required void Function() onSuccess}) async {
+    getLoadingDialogue(title: "Deleting group...");
+    try {
+      await dio_package.Dio()
+          .delete("${Constants.baseUrl}/deleteGroupById/$groupId")
+          .then((value) {
+        removeDialogue();
+        if (value.statusCode == 200) {
+          onSuccess.call();
+          getSuccessDialogue(message: "Group Deleted Successfully.");
+        }
+      });
+    } catch (e) {
+      removeDialogue();
+      getErrorDialogue(errorMessage: e.toString());
+    }
+  }
+
+  ///add a question in test
+  addAQuestionInTest({
+    required String question,
+    required String questionExpression,
+    required String option1,
+    required String option2,
+    required String option3,
+    required String option4,
+    required String correctOpt,
+    required int testId,
+    required void Function() onSuccess,
+  }) async {
+    getLoadingDialogue(title: "Uploading question...");
+    try {
+      var data = json.encode({
+        "question": question,
+        "questionExpression": "",
+        "option1": option1,
+        "expression1": "",
+        "option2": option2,
+        "expression2": "",
+        "option3": option3,
+        "expression3": "",
+        "option4": option4,
+        "expression4": "",
+        "correctOpt": correctOpt,
+        "correctExpression": "",
+        "description": "question set of the java subject",
+        "testfield": {"testId": testId}
+      });
+      await dio_package.Dio()
+          .post("${Constants.baseUrl}/addQuestion", data: data)
+          .then((value) {
+        removeDialogue();
+        if (value.statusCode == 200) {
+          ///
+          onSuccess.call();
+        }
+      });
+    } catch (e) {
+      removeDialogue();
+      print("Error while adding question :$e");
+      getErrorDialogue(errorMessage: e.toString());
+    }
+  }
+
+  ///delete test
+  deleteTest(
+      {required String testId, required void Function() onSuccess}) async {
+    getLoadingDialogue(title: "Deleting test...");
+    try {
+      await dio_package.Dio()
+          .delete("${Constants.baseUrl}/deleteTestById/$testId")
+          .then((value) {
+        removeDialogue();
+        if (value.statusCode == 200) {
+          onSuccess.call();
+          getSuccessDialogue(message: "Test Deleted Successfully.");
+        }
+      });
+    } catch (e) {
+      removeDialogue();
+      getErrorDialogue(errorMessage: e.toString());
+    }
+  }
+
+  ///delete notice by ID
+  deleteNoticeById(
+      {required String noticeId, required void Function() onSuccess}) async {
+    getLoadingDialogue(title: "Deleting Notice...");
+    try {
+      await dio_package.Dio()
+          .delete("${Constants.baseUrl}/deleteNoticeById/$noticeId")
+          .then((value) {
+        removeDialogue();
+        if (value.statusCode == 200) {
+          onSuccess.call();
+          getSuccessDialogue(message: "Notice Deleted Successfully.");
+        }
+      });
+    } catch (e) {
+      removeDialogue();
       getErrorDialogue(errorMessage: e.toString());
     }
   }

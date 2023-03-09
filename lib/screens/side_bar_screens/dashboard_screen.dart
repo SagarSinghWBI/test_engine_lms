@@ -42,14 +42,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(onPressed: () {
-        // final shortcuts = Shortcuts.of(context).shortcuts;
-        // final key = LogicalKeySet(LogicalKeyboardKey.escape);
-        // shortcuts[key] = WidgetsApp.defaultShortcuts[key];
-        // document.documentElement?.requestFullscreen().then((value) {
-        //
-        // });
-      }),
+      // floatingActionButton: FloatingActionButton(onPressed: () {
+      //   // final shortcuts = Shortcuts.of(context).shortcuts;
+      //   // final key = LogicalKeySet(LogicalKeyboardKey.escape);
+      //   // shortcuts[key] = WidgetsApp.defaultShortcuts[key];
+      //   // document.documentElement?.requestFullscreen().then((value) {
+      //   //
+      //   // });
+      // }),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -109,19 +109,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         getCard(
-                          assetImage: "lib/assets/test_group.jpg",
+                          assetImage: "lib/assets/groups.png",
                           onTap: () {},
                           categoryName: "Total Groups",
                           data: totalGroups ?? "0",
                         ),
                         getCard(
-                          assetImage: "lib/assets/tests_dash.jpg",
+                          assetImage: "lib/assets/test.png",
                           onTap: () {},
                           categoryName: "Total Tests",
                           data: totalTests ?? "0",
                         ),
                         getCard(
-                          assetImage: "lib/assets/bulk_student.png",
+                          assetImage: "lib/assets/total student.png",
                           onTap: () {},
                           categoryName: "Total Students",
                           data: totalStudents ?? "0",
@@ -133,18 +133,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       children: [
                         getCard(
                           onTap: () {},
-                          assetImage: "lib/assets/notice_dash.jpg",
+                          assetImage: "lib/assets/total notice.png",
                           categoryName: "Total Notices",
                           data: totalNotice ?? "0",
                         ),
                         getCard(
-                          assetImage: "lib/assets/test_group.jpg",
+                          assetImage: "lib/assets/test.png",
                           onTap: () {},
                           categoryName: "Total Tests",
                           data: totalTests ?? "0",
                         ),
                         getCard(
-                          assetImage: "lib/assets/test_group.jpg",
+                          assetImage: "lib/assets/total student.png",
                           onTap: () {},
                           categoryName: "Total Students",
                           data: totalStudents ?? "0",

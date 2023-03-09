@@ -10,8 +10,13 @@ import 'package:test_engine_lms/utils/constants.dart';
 
 class AssignStudentCourseScreen extends StatefulWidget {
   const AssignStudentCourseScreen(
-      {Key? key, required this.studentsList, required this.groupCoursesList})
+      {Key? key,
+      required this.studentsList,
+      required this.groupCoursesList,
+      this.selectedStudentsList})
       : super(key: key);
+
+  final List<GetStudentsModel>? selectedStudentsList;
   final List<GetStudentsModel> studentsList;
   final List<GroupModel> groupCoursesList;
 
@@ -50,7 +55,7 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
                       Container(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            "Assign Course Group to Students",
+                            "Assign Groups to Students",
                             style: TextStyle(
                               color: Constants.primaryColor,
                               fontWeight: FontWeight.bold,
@@ -101,7 +106,8 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
                                     if (kDebugMode) {
                                       print("here");
                                     }
-                                    selectedStudents = widget.studentsList;
+                                    selectedStudents =
+                                        widget.studentsList.toList();
                                     setState(() {});
                                   } else {
                                     if (kDebugMode) {
@@ -121,6 +127,13 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
                               widget.studentsList.length,
                           child: MultiSelectFormField(
                             // required: true,
+                            // initialValue: [
+                            //   {
+                            //     "display":
+                            //         "(${widget.selectedStudentsList![0].studentId}) ${widget.selectedStudentsList![0].userName}",
+                            //     "value": widget.selectedStudentsList![0]
+                            //   }
+                            // ],
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(20),
                                 borderSide: BorderSide(
@@ -180,7 +193,8 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
                                     if (kDebugMode) {
                                       print("here");
                                     }
-                                    selectedCourses = widget.groupCoursesList;
+                                    selectedCourses =
+                                        widget.groupCoursesList.toList();
                                     setState(() {});
                                   } else {
                                     if (kDebugMode) {
@@ -190,7 +204,7 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
                                     setState(() {});
                                   }
                                 }),
-                            const Text("Select All Course Groups"),
+                            const Text("Select All Groups"),
                           ],
                         ),
 
@@ -206,7 +220,7 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
                                   color: Constants.primaryColor,
                                 )),
                             title: Text(
-                              "Select Courses",
+                              "Select Groups",
                               style: TextStyle(
                                   color: Constants.primaryColor,
                                   fontWeight: FontWeight.bold),
@@ -257,7 +271,7 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
                     style: ButtonStyle(
                         backgroundColor:
                             MaterialStatePropertyAll(Constants.primaryColor)),
-                    onPressed: () {
+                    onPressed: () async {
                       if (formKey.currentState!.validate()) {
                         List<int> studentIds = [];
                         List<int> courseIds = [];
@@ -271,14 +285,14 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
                         }
 
                         ///hit api here
-                        AuthController().assignMultipleCoursesToStudents(
+                        await AuthController().assignMultipleCoursesToStudents(
                           studentIds: studentIds,
                           courseIds: courseIds,
                           onSuccess: () {
                             formKey.currentState?.reset();
                             selectedCourses.clear();
                             selectedStudents.clear();
-                            // setState(() {});
+                            setState(() {});
                           },
                         );
                       }
@@ -288,7 +302,7 @@ class _AssignStudentCourseScreenState extends State<AssignStudentCourseScreen> {
                       size: 18,
                       color: Colors.white,
                     ),
-                    label: const Text("Assign Course Group to Students")),
+                    label: const Text("Save")),
               ),
             ],
           ),

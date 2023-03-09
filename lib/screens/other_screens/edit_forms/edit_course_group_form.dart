@@ -52,7 +52,7 @@ class _EditGroupCourseScreenState extends State<EditGroupCourseScreen> {
                       Container(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            "Edit Course Group",
+                            "Edit Group",
                             style: TextStyle(
                               color: Constants.primaryColor,
                               fontWeight: FontWeight.bold,

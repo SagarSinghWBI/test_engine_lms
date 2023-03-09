@@ -8,6 +8,7 @@ import 'package:math_keyboard/math_keyboard.dart';
 import 'package:test_engine_lms/controllers/auth_controller.dart';
 import 'package:test_engine_lms/controllers/dataController.dart';
 import 'package:test_engine_lms/models/AddQuestionsModel.dart';
+import 'package:test_engine_lms/models/GetTestModel.dart';
 import 'package:test_engine_lms/models/GroupModel.dart';
 import 'package:test_engine_lms/utils/constants.dart';
 import 'package:test_engine_lms/utils/image_picking_service.dart';
@@ -15,16 +16,17 @@ import 'package:test_engine_lms/utils/my_dialogs.dart';
 import 'package:test_engine_lms/utils/storage_service.dart';
 import 'package:test_engine_lms/utils/ui_widgets.dart';
 
-class AddTestScreen extends StatefulWidget {
-  const AddTestScreen({Key? key, required this.coursesList}) : super(key: key);
+class AddQuestionsScreen extends StatefulWidget {
+  const AddQuestionsScreen({Key? key, required this.testModel})
+      : super(key: key);
 
-  final List<GroupModel> coursesList;
+  final GetTestModel testModel;
 
   @override
-  State<AddTestScreen> createState() => _AddTestScreenState();
+  State<AddQuestionsScreen> createState() => _AddQuestionsScreenState();
 }
 
-class _AddTestScreenState extends State<AddTestScreen> {
+class _AddQuestionsScreenState extends State<AddQuestionsScreen> {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   var dataController = Get.put(DataController());
   TextEditingController totalMarksController = TextEditingController();
@@ -34,7 +36,6 @@ class _AddTestScreenState extends State<AddTestScreen> {
   TextEditingController showQuestionsController = TextEditingController();
   TextEditingController pdfController = TextEditingController();
   TextEditingController totalQuestionsController = TextEditingController();
-  bool containQuestions = false;
 
   GroupModel? selectedModel;
   int totalQuestions = 0;
@@ -43,22 +44,15 @@ class _AddTestScreenState extends State<AddTestScreen> {
   RxList<RxBool> boolExpressionList = <RxBool>[].obs;
   FilePickerResult? pdfFile;
 
-  getAllCourses() async {
-    try {
-      var limit = await StorageService().getData(key: "questionLimit");
-      questionLimit = int.parse(limit);
-      setState(() {});
-    } catch (e) {
-      if (kDebugMode) {
-        print("get group Error is:$e");
-      }
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    getAllCourses();
+    totalMarksController.text = widget.testModel.totalMarks.toString();
+    endDateController.text = widget.testModel.endDate.toString();
+    testNameController.text = widget.testModel.testName.toString();
+    totalTimeController.text = widget.testModel.totalTime.toString();
+    showQuestionsController.text = widget.testModel.showedQuestion.toString();
+    totalQuestionsController.text = widget.testModel.totalQuestions.toString();
   }
 
   @override
@@ -95,7 +89,7 @@ class _AddTestScreenState extends State<AddTestScreen> {
                       Container(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            "Add Test",
+                            "Add Test Questions",
                             style: TextStyle(
                               color: Constants.primaryColor,
                               fontWeight: FontWeight.bold,
@@ -136,31 +130,11 @@ class _AddTestScreenState extends State<AddTestScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const SizedBox(height: 10),
-                        DropdownButtonFormField(
-                            validator: (value) {
-                              if (value == null) {
-                                return "Please choose a Group!";
-                              }
-                              return null;
-                            },
-                            isDense: true,
-                            decoration: getInputDecoration(
-                                labelText: "Select Group", hintText: ""),
-                            items: widget.coursesList.map((e) {
-                              return DropdownMenuItem<GroupModel>(
-                                value: e,
-                                child: Text(e.groupName.toString()),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              selectedModel = value;
-                              setState(() {});
-                            }),
-                        const SizedBox(height: 20),
 
                         ///test name field
                         TextFormField(
                           controller: testNameController,
+                          enabled: false,
                           validator: (value) {
                             if (value!.isEmpty) {
                               return "This field is mandatory to fill.";
@@ -168,14 +142,16 @@ class _AddTestScreenState extends State<AddTestScreen> {
                             return null;
                           },
                           decoration: getInputDecoration(
-                              labelText: "Test Name",
-                              hintText:
-                                  "Ex: HTML/CSS Test, Algebra Test, General Knowledge Test etc."),
+                            labelText: "Test Name",
+                            hintText:
+                                "Ex: HTML/CSS Test, Algebra Test, General Knowledge Test etc.",
+                          ),
                         ),
                         const SizedBox(height: 20),
 
                         ///total questions
                         TextFormField(
+                          enabled: false,
                           controller: totalQuestionsController,
                           inputFormatters: <TextInputFormatter>[
                             FilteringTextInputFormatter.digitsOnly
@@ -184,10 +160,11 @@ class _AddTestScreenState extends State<AddTestScreen> {
                           validator: (value) {
                             if (value!.isEmpty) {
                               return "This field is mandatory to fill.";
-                            } else if (int.parse(value) > questionLimit) {
-                              getUpgradeSubscriptionDialog();
-                              return "Your question limit is $questionLimit. Upgrade your subscription for increasing limit.";
                             }
+                            // else if (int.parse(value) > questionLimit) {
+                            //   getUpgradeSubscriptionDialog();
+                            //   return "Your question limit is $questionLimit. Upgrade your subscription for increasing limit.";
+                            // }
                             return null;
                           },
                           onSaved: (String? value) {
@@ -221,6 +198,7 @@ class _AddTestScreenState extends State<AddTestScreen> {
 
                         ///showed questions
                         TextFormField(
+                          enabled: false,
                           controller: showQuestionsController,
                           inputFormatters: <TextInputFormatter>[
                             FilteringTextInputFormatter.digitsOnly
@@ -244,6 +222,7 @@ class _AddTestScreenState extends State<AddTestScreen> {
 
                         ///total marks
                         TextFormField(
+                          enabled: false,
                           controller: totalMarksController,
                           inputFormatters: <TextInputFormatter>[
                             FilteringTextInputFormatter.digitsOnly
@@ -264,6 +243,7 @@ class _AddTestScreenState extends State<AddTestScreen> {
 
                         ///total time
                         TextFormField(
+                          enabled: false,
                           controller: totalTimeController,
                           inputFormatters: <TextInputFormatter>[
                             FilteringTextInputFormatter.digitsOnly
@@ -285,29 +265,29 @@ class _AddTestScreenState extends State<AddTestScreen> {
                         ///End Date
                         GestureDetector(
                           onTap: () async {
-                            DateTime? pickedDate = await showDatePicker(
-                                context: context,
-                                //context of current state
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime.now(),
-                                //DateTime.now() - not to allow to choose before today.
-                                lastDate: DateTime(2101));
-
-                            if (pickedDate != null) {
-                              if (kDebugMode) {
-                                print(pickedDate);
-                              } //pickedDate output format => 2021-03-10 00:00:00.000
-                              String formattedDate =
-                                  DateFormat('yyyy-MM-dd').format(pickedDate);
-                              if (kDebugMode) {
-                                print(formattedDate);
-                              } //formatted date output using intl package =>  2021-03-16
-                              endDateController.text = formattedDate;
-                            } else {
-                              if (kDebugMode) {
-                                print("Date is not selected");
-                              }
-                            }
+                            // DateTime? pickedDate = await showDatePicker(
+                            //     context: context,
+                            //     //context of current state
+                            //     initialDate: DateTime.now(),
+                            //     firstDate: DateTime.now(),
+                            //     //DateTime.now() - not to allow to choose before today.
+                            //     lastDate: DateTime(2101));
+                            //
+                            // if (pickedDate != null) {
+                            //   if (kDebugMode) {
+                            //     print(pickedDate);
+                            //   } //pickedDate output format => 2021-03-10 00:00:00.000
+                            //   String formattedDate =
+                            //       DateFormat('yyyy-MM-dd').format(pickedDate);
+                            //   if (kDebugMode) {
+                            //     print(formattedDate);
+                            //   } //formatted date output using intl package =>  2021-03-16
+                            //   endDateController.text = formattedDate;
+                            // } else {
+                            //   if (kDebugMode) {
+                            //     print("Date is not selected");
+                            //   }
+                            // }
                           },
                           child: TextFormField(
                             controller: endDateController,
@@ -327,118 +307,37 @@ class _AddTestScreenState extends State<AddTestScreen> {
 
                         const SizedBox(height: 15),
 
-                        ///pdf file
-                        GestureDetector(
-                          onTap: () async {
-                            await ImagePickingService().pickPdfFileFromGallery(
-                                onSelected: (FilePickerResult file) {
-                              pdfController.text = file.files.first.name;
-                              setState(() {
-                                pdfFile = file;
-                              });
-                            });
-                          },
-                          child: TextFormField(
-                            enabled: false,
-                            controller: pdfController,
-                            decoration: InputDecoration(
-                                isDense: true,
-                                labelStyle:
-                                    TextStyle(color: Constants.primaryColor),
-                                hintStyle: const TextStyle(fontSize: 15),
-                                labelText: "Select Answers Pdf File (optional)",
-                                hintText: "",
-                                suffixIcon: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Image.asset(
-                                    "lib/assets/pdf_vector.png",
-                                    height: 40,
-                                    width: 40,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(50),
-                                    borderSide: BorderSide(
-                                        color: Constants.primaryColor)),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(50),
-                                )),
-                            // decoration: getInputDecoration(
-                            //     labelText: "Select Pdf File", hintText: ""),
-                          ),
-                        ),
                         const SizedBox(height: 20),
 
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Checkbox(
-                                value: containQuestions,
-                                onChanged: (value) {
-                                  if (value == true) {
-                                    setState(() {
-                                      containQuestions = true;
-                                    });
-                                    if (formKey.currentState!.validate()) {
-                                      formKey.currentState!.save();
-                                      if (totalQuestions == 0) {
-                                        Get.defaultDialog(
-                                            title: "Alert",
-                                            titleStyle: const TextStyle(
-                                              color: Colors.red,
-                                            ),
-                                            content: const Center(
-                                              child: Text(
-                                                  "Please make sure that you have been entered the number of total questions!"),
-                                            ),
-                                            confirmTextColor: Colors.white,
-                                            buttonColor: Colors.indigo,
-                                            onConfirm: () {
-                                              Get.back();
-                                            });
-                                      }
-                                    }
-                                  } else {
-                                    setState(() {
-                                      containQuestions = false;
-                                    });
-
-                                    ///
-                                  }
-                                }),
-                            Text("Contain Questions?"),
-                            // ElevatedButton(
-                            //   style: const ButtonStyle(
-                            //       backgroundColor:
-                            //           MaterialStatePropertyAll(Colors.indigo)),
-                            //   onPressed: () {
-                            //     if (formKey.currentState!.validate()) {
-                            //       formKey.currentState!.save();
-                            //       if (totalQuestions == 0) {
-                            //         Get.defaultDialog(
-                            //             title: "Alert",
-                            //             titleStyle: const TextStyle(
-                            //               color: Colors.red,
-                            //             ),
-                            //             content: const Center(
-                            //               child: Text(
-                            //                   "Please make sure that you have been entered the number of total questions!"),
-                            //             ),
-                            //             confirmTextColor: Colors.white,
-                            //             buttonColor: Colors.indigo,
-                            //             onConfirm: () {
-                            //               Get.back();
-                            //             });
-                            //       }
-                            //     }
-                            //   },
-                            //   child: const Text("Enter Questions"),
-                            // ),
-                          ],
-                        ),
+                        ElevatedButton(
+                            style: const ButtonStyle(
+                                backgroundColor:
+                                    MaterialStatePropertyAll(Colors.indigo)),
+                            onPressed: () {
+                              if (formKey.currentState!.validate()) {
+                                formKey.currentState!.save();
+                                if (totalQuestions == 0) {
+                                  Get.defaultDialog(
+                                      title: "Alert",
+                                      titleStyle: const TextStyle(
+                                        color: Colors.red,
+                                      ),
+                                      content: const Center(
+                                        child: Text(
+                                            "Please make sure that you have been entered the number of total questions!"),
+                                      ),
+                                      confirmTextColor: Colors.white,
+                                      buttonColor: Colors.indigo,
+                                      onConfirm: () {
+                                        Get.back();
+                                      });
+                                }
+                              }
+                            },
+                            child: const Text("Enter Questions")),
                         const SizedBox(height: 20),
                         Visibility(
-                          visible: containQuestions,
+                          visible: totalQuestions != 0,
                           child: ListView.builder(
                             physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
@@ -822,8 +721,7 @@ class _AddTestScreenState extends State<AddTestScreen> {
                       // }
                       if (formKey.currentState!.validate()) {
                         ///check for current month limit
-                          formKey.currentState?.save();
-
+                        formKey.currentState?.save();
                         int testLimit =
                             await DataController().getInstituteTestData();
 
@@ -834,33 +732,46 @@ class _AddTestScreenState extends State<AddTestScreen> {
                           getUpgradeSubscriptionDialog();
                         } else {
                           ///hit api here
-                          DataController().addTest(
-                            pdfAnswerFile: pdfFile,
-                            totalTime: int.parse(totalTimeController.text),
-                            endDate: endDateController.text,
-                            onSuccess: () async {
-                              formKey.currentState?.reset();
-                              selectedModel = GroupModel();
-                              endDateController.text = "";
-                              testNameController.text = "";
-                              totalTimeController.text = "";
-                              totalQuestionsController.text = "";
-                              showQuestionsController.text = "";
-                              totalMarksController.text = "";
-                              await AuthController()
-                                  .getInstituteDashboardData();
-                              setState(() {});
-                            },
-                            testName: testNameController.text,
-                            totalQuestions:
-                                int.parse(totalQuestionsController.text),
-                            totalMarks: int.parse(totalMarksController.text),
-                            showedQuestion:
-                                int.parse(showQuestionsController.text),
-                            groupId: selectedModel!.groupId!,
-                            questionsList:
-                                containQuestions ? questionsList : [],
-                          );
+
+                          for (int i = 0; i < questionsList.length; i++) {
+                            await DataController().addAQuestionInTest(
+                              question: questionsList[i].question.toString(),
+                              questionExpression: questionsList[i]
+                                  .questionExpression
+                                  .toString(),
+                              option1: questionsList[i].option1.toString(),
+                              option2: questionsList[i].option2.toString(),
+                              option3: questionsList[i].option3.toString(),
+                              option4: questionsList[i].option4.toString(),
+                              correctOpt:
+                                  questionsList[i].correctOpt.toString(),
+                              testId: widget.testModel.testId!,
+                              onSuccess: () {
+                                print("Success");
+                                if (i == questionsList.length - 1) {
+                                  Get.back();
+                                  getSuccessDialogue(
+                                      message: "Questions Added Successfully.");
+                                }
+                              },
+                            );
+                          }
+                          // questionsList.forEach((element) async {
+                          //   // Future.delayed(Duration(seconds: 2));
+                          //   await DataController().addAQuestionInTest(
+                          //       question: element.question.toString(),
+                          //       questionExpression:
+                          //           element.questionExpression.toString(),
+                          //       option1: element.option1.toString(),
+                          //       option2: element.option2.toString(),
+                          //       option3: element.option3.toString(),
+                          //       option4: element.option4.toString(),
+                          //       correctOpt: element.correctOpt.toString(),
+                          //       testId: widget.testModel.testId!,
+                          //       onSuccess: () {
+                          //         print("Success");
+                          //       });
+                          // });
                         }
 
                         /// ///////////////////
@@ -874,7 +785,7 @@ class _AddTestScreenState extends State<AddTestScreen> {
                       Icons.add,
                       color: Colors.white,
                     ),
-                    label: const Text("Save Test")),
+                    label: const Text("Save Test Questions")),
               ),
             ],
           ),

@@ -21,7 +21,7 @@ class AuthController {
       await dio_package.Dio()
           .put("${Constants.baseUrl}/resetInstitutePassword", data: data)
           .then((value) {
-            removeDialogue();
+        removeDialogue();
         if (value.statusCode == 200) {
           onSuccess.call();
         }

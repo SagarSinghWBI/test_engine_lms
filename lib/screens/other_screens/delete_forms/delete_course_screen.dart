@@ -47,7 +47,7 @@ class _DeleteCourseGroupScreenState extends State<DeleteCourseGroupScreen> {
                           Container(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                "Delete Course Group",
+                                "Delete Group",
                                 style: TextStyle(
                                   color: Constants.primaryColor,
                                   fontWeight: FontWeight.bold,
@@ -94,7 +94,7 @@ class _DeleteCourseGroupScreenState extends State<DeleteCourseGroupScreen> {
                               },
                               isDense: true,
                               decoration: getInputDecoration(
-                                labelText: "Select Course Group",
+                                labelText: "Select Group",
                                 hintText: "",
                               ),
                               items: widget.groupList.map((e) {
@@ -119,9 +119,16 @@ class _DeleteCourseGroupScreenState extends State<DeleteCourseGroupScreen> {
                         style: ButtonStyle(
                             backgroundColor: MaterialStatePropertyAll(
                                 Constants.primaryColor)),
-                        onPressed: () {
+                        onPressed: () async {
                           if (formKey.currentState!.validate()) {
                             ///hit api here
+                            await dataController.deleteGroup(
+                                onSuccess: () {
+                                  formKey.currentState?.reset();
+                                  selectedModel = GroupModel();
+                                  setState(() {});
+                                },
+                                groupId: selectedModel!.groupId.toString());
                           }
                         },
                         icon: const Icon(

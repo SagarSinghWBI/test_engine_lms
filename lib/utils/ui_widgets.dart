@@ -132,6 +132,7 @@ getInputDecoration(
         required String hintText,
         bool isMaxLines = false}) =>
     InputDecoration(
+      errorStyle: TextStyle(color: Colors.red),
         isDense: true,
         labelStyle: TextStyle(color: Constants.primaryColor),
         hintStyle: const TextStyle(fontSize: 15),

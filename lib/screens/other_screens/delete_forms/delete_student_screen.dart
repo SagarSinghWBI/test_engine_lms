@@ -117,9 +117,16 @@ class _DeleteStudentScreenState extends State<DeleteStudentScreen> {
                         style: ButtonStyle(
                             backgroundColor: MaterialStatePropertyAll(
                                 Constants.primaryColor)),
-                        onPressed: () {
+                        onPressed: () async {
                           if (formKey.currentState!.validate()) {
                             ///hit api here
+                            await dataController.deleteStudent(
+                                onSuccess: () {
+                                  formKey.currentState?.reset();
+                                  selectedModel = GetStudentsModel();
+                                  setState(() {});
+                                },
+                                studentId: selectedModel!.studentId.toString());
                           }
                         },
                         icon: const Icon(

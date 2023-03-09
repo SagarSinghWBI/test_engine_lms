@@ -85,15 +85,28 @@ class _NoticeScreenState extends State<NoticeScreen> {
                                       color: Colors.cyanAccent)),
                             ),
                             Spacer(),
-                            IconButton(
-                                tooltip: "Refresh",
+                            ElevatedButton.icon(
+                                style: ButtonStyle(
+                                    backgroundColor:
+                                        const MaterialStatePropertyAll(
+                                            Colors.white),
+                                    shape: MaterialStatePropertyAll(
+                                        RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(20)))),
                                 onPressed: () {
-                                  setState(() {});
+                                  controller.getAllNotifications();
                                 },
-                                icon: const Icon(
+                                icon: Icon(
                                   Icons.refresh,
                                   size: 18,
-                                  color: Colors.white,
+                                  color: Constants.primaryColor,
+                                ),
+                                label: Text(
+                                  "Refresh",
+                                  style: TextStyle(
+                                      color: Constants.primaryColor,
+                                      fontWeight: FontWeight.bold),
                                 )),
                           ],
                         ),
@@ -122,7 +135,6 @@ class _NoticeScreenState extends State<NoticeScreen> {
                                 },
                               ),
                               const SizedBox(height: 10),
-
                               Expanded(
                                   child: controller.searchingNotices.value
                                       ? Container(
@@ -267,7 +279,38 @@ class _NoticeScreenState extends State<NoticeScreen> {
                                                   DataCell(
                                                     IconButton(
                                                         tooltip: "Delete",
-                                                        onPressed: () {},
+                                                        onPressed: () {
+                                                          Get.defaultDialog(
+                                                              content: Center(
+                                                                child: Text(
+                                                                  "Are you sure that you want to delete this notice?",
+                                                                  textAlign:
+                                                                      TextAlign
+                                                                          .center,
+                                                                  style: TextStyle(
+                                                                      color: Constants
+                                                                          .primaryColor),
+                                                                ),
+                                                              ),
+                                                              onCancel: () {},
+                                                              textConfirm:
+                                                                  "Delete",
+                                                              buttonColor: Constants
+                                                                  .primaryColor,
+                                                              onConfirm: () {
+                                                                controller
+                                                                    .deleteNoticeById(
+                                                                        noticeId: controller
+                                                                            .filteredNotificationModelList[
+                                                                                index]
+                                                                            .noticeId
+                                                                            .toString(),
+                                                                        onSuccess:
+                                                                            () {
+                                                                          Get.back();
+                                                                        });
+                                                              });
+                                                        },
                                                         icon: const Icon(
                                                           Icons.delete,
                                                           size: 18,

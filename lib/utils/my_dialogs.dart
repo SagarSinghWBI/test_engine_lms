@@ -80,26 +80,27 @@ getLoadingDialogue({required String title}) {
   );
 }
 
-getErrorDialogue({required String errorMessage}) {
+getErrorDialogue({required String errorMessage, bool setHeight = false}) {
   Get.defaultDialog(
-      title: 'Error',
-      titleStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
-      content: Container(
-        height: Get.height / 3,
-        alignment: Alignment.center,
-        child: SingleChildScrollView(
-            child: Text(
-          errorMessage,
-          style: const TextStyle(color: Colors.red),
-          textAlign: TextAlign.center,
-        )),
-      ),
-      barrierDismissible: true,
-      onConfirm: () {
-        Get.back();
-      },
-      confirmTextColor: Colors.white,
-      buttonColor: Colors.red);
+    title: 'Error',
+    titleStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+    content: Container(
+      height: setHeight ? 50 : Get.height / 3,
+      alignment: Alignment.center,
+      child: SingleChildScrollView(
+          child: Text(
+        errorMessage,
+        style: const TextStyle(color: Colors.red),
+        textAlign: TextAlign.center,
+      )),
+    ),
+    barrierDismissible: true,
+    onConfirm: () {
+      Get.back();
+    },
+    confirmTextColor: Colors.white,
+    buttonColor: Colors.red,
+  );
 }
 
 ///remove any dialogue

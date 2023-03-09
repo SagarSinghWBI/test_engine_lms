@@ -8,6 +8,7 @@ import 'package:dio/dio.dart' as dio_package;
 import 'package:test_engine_lms/utils/constants.dart';
 import 'package:test_engine_lms/utils/responsive.dart';
 
+
 class ShowPerformanceScreen extends StatefulWidget {
   const ShowPerformanceScreen({Key? key, required this.studentModel})
       : super(key: key);
@@ -102,7 +103,8 @@ class _ShowPerformanceScreenState extends State<ShowPerformanceScreen> {
                     }
 
                     if (performanceModel.percentage == null) {
-                      return Center(child: Image.asset("lib/assets/nodata.png"));
+                      return Center(
+                          child: Image.asset("lib/assets/nodata.png"));
                     } else {
                       return Responsive.isMobile(context) ||
                               Responsive.isTablet(context)

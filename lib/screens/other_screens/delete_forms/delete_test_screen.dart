@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:test_engine_lms/controllers/dataController.dart';
 import 'package:test_engine_lms/models/GetTestModel.dart';
 import 'package:test_engine_lms/utils/constants.dart';
 import 'package:test_engine_lms/utils/ui_widgets.dart';
@@ -14,6 +15,7 @@ class DeleteTestScreen extends StatefulWidget {
 }
 
 class _DeleteTestScreenState extends State<DeleteTestScreen> {
+  var dataController = Get.put(DataController());
   GetTestModel? selectedModel;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -115,9 +117,16 @@ class _DeleteTestScreenState extends State<DeleteTestScreen> {
                         style: ButtonStyle(
                             backgroundColor: MaterialStatePropertyAll(
                                 Constants.primaryColor)),
-                        onPressed: () {
+                        onPressed: () async {
                           if (formKey.currentState!.validate()) {
                             ///hit api here
+                            await dataController.deleteTest(
+                                onSuccess: () {
+                                  formKey.currentState?.reset();
+                                  selectedModel = GetTestModel();
+                                  setState(() {});
+                                },
+                                testId: selectedModel!.testId.toString());
                           }
                         },
                         icon: const Icon(

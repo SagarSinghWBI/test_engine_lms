@@ -1,4 +1,3 @@
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -281,7 +280,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                       Icons.add,
                       color: Colors.white,
                     ),
-                    label: const Text("Add Student")),
+                    label: const Text("Save")),
               ),
             ],
           ),

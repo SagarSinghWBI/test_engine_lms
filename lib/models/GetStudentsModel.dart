@@ -1,3 +1,5 @@
+import 'GroupCourse.dart';
+
 class GetStudentsModel {
   GetStudentsModel({
     this.studentId,
@@ -5,12 +7,12 @@ class GetStudentsModel {
     this.password,
     this.mobile,
     this.email,
+    this.studentStatus,
     this.imagePath,
     this.imageName,
     this.registrationDate,
     this.institute,
     this.groupCourse,
-    this.optcoursesIds,
   });
 
   GetStudentsModel.fromJson(dynamic json) {
@@ -19,6 +21,7 @@ class GetStudentsModel {
     password = json['password'];
     mobile = json['mobile'];
     email = json['email'];
+    studentStatus = json['studentStatus'];
     imagePath = json['imagePath'];
     imageName = json['imageName'];
     registrationDate = json['registrationDate'];
@@ -26,13 +29,7 @@ class GetStudentsModel {
     if (json['groupCourse'] != null) {
       groupCourse = [];
       json['groupCourse'].forEach((v) {
-        groupCourse?.add(v);
-      });
-    }
-    if (json['optcoursesIds'] != null) {
-      optcoursesIds = [];
-      json['optcoursesIds'].forEach((v) {
-        optcoursesIds?.add(v);
+        groupCourse?.add(GroupCourse.fromJson(v));
       });
     }
   }
@@ -41,12 +38,12 @@ class GetStudentsModel {
   String? password;
   String? mobile;
   String? email;
+  bool? studentStatus;
   String? imagePath;
   String? imageName;
   String? registrationDate;
   int? institute;
-  List<dynamic>? groupCourse;
-  List<dynamic>? optcoursesIds;
+  List<GroupCourse>? groupCourse;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -55,6 +52,7 @@ class GetStudentsModel {
     map['password'] = password;
     map['mobile'] = mobile;
     map['email'] = email;
+    map['studentStatus'] = studentStatus;
     map['imagePath'] = imagePath;
     map['imageName'] = imageName;
     map['registrationDate'] = registrationDate;
@@ -62,10 +60,6 @@ class GetStudentsModel {
     final groupCourse = this.groupCourse;
     if (groupCourse != null) {
       map['groupCourse'] = groupCourse.map((v) => v.toJson()).toList();
-    }
-    final optcoursesIds = this.optcoursesIds;
-    if (optcoursesIds != null) {
-      map['optcoursesIds'] = optcoursesIds.map((v) => v.toJson()).toList();
     }
     return map;
   }

@@ -147,6 +147,27 @@ class _StudentScreenState extends State<StudentScreen> {
                             }
                           }),
                     ),
+                    const SizedBox(
+                      height: 10,
+                      width: 10,
+                    ),
+                    Expanded(
+                      child: MyButton(
+                        icon: const Icon(Icons.add,
+                            size: 25, color: Colors.white),
+                        text: "Assign Groups",
+                        onTap: () async {
+                          if (controller.groupModelList.isEmpty) {
+                            await controller.getAllGroups();
+                          }
+
+                          Get.dialog(AssignStudentCourseScreen(
+                            groupCoursesList: controller.groupModelList,
+                            studentsList: controller.studentModelList,
+                          ));
+                        },
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 15),
@@ -175,18 +196,42 @@ class _StudentScreenState extends State<StudentScreen> {
                             ),
                             Row(
                               children: [
-                                IconButton(
-                                    tooltip: "Refresh",
+                                ElevatedButton.icon(
+                                    style: ButtonStyle(
+                                        backgroundColor:
+                                        const MaterialStatePropertyAll(
+                                            Colors.white),
+                                        shape: MaterialStatePropertyAll(
+                                            RoundedRectangleBorder(
+                                                borderRadius:
+                                                BorderRadius.circular(
+                                                    20)))),
                                     onPressed: () {
                                       controller.getAllStudents();
                                     },
-                                    icon: const Icon(
+                                    icon: Icon(
                                       Icons.refresh,
                                       size: 18,
-                                      color: Colors.white,
+                                      color: Constants.primaryColor,
+                                    ),
+                                    label: Text(
+                                      "Refresh",
+                                      style: TextStyle(
+                                          color: Constants.primaryColor,
+                                          fontWeight: FontWeight.bold),
                                     )),
+                                // IconButton(
+                                //     tooltip: "Refresh",
+                                //     onPressed: () {
+                                //       controller.getAllStudents();
+                                //     },
+                                //     icon: const Icon(
+                                //       Icons.refresh,
+                                //       size: 18,
+                                //       color: Colors.white,
+                                //     )),
                                 IconButton(
-                                    tooltip: "Assign courses",
+                                    tooltip: "Assign groups",
                                     onPressed: () async {
                                       if (controller.groupModelList.isEmpty) {
                                         await controller.getAllGroups();
@@ -297,6 +342,7 @@ class _StudentScreenState extends State<StudentScreen> {
                                                   color: Colors.white,
                                                   width: 2),
                                             ),
+                                            columnSpacing: 0.5,
                                             headingTextStyle: TextStyle(
                                               color: Constants.headerColor,
                                               fontWeight: FontWeight.bold,
@@ -313,6 +359,10 @@ class _StudentScreenState extends State<StudentScreen> {
                                               DataColumn2(
                                                   label:
                                                       Text("View Performance")),
+                                              DataColumn2(
+                                                  label: Text("Assign Group")),
+                                              DataColumn2(
+                                                  label: Text("View Groups")),
                                             ],
                                             rows: List.generate(
                                                 controller
@@ -378,9 +428,150 @@ class _StudentScreenState extends State<StudentScreen> {
                                                     icon: const Icon(
                                                       Icons.view_in_ar,
                                                       color: Colors.white,
+                                                      size: 16,
                                                     ),
                                                     label: const Text(
-                                                        "View Student Performance"))),
+                                                      "Performance",
+                                                      style: TextStyle(
+                                                          fontSize: 10),
+                                                    ))),
+                                                DataCell(ElevatedButton.icon(
+                                                    style: ButtonStyle(
+                                                      side: MaterialStatePropertyAll(
+                                                          BorderSide(
+                                                              color: Constants
+                                                                  .secondaryColor)),
+                                                      shape:
+                                                          MaterialStatePropertyAll(
+                                                        RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(20),
+                                                        ),
+                                                      ),
+                                                      backgroundColor:
+                                                          MaterialStatePropertyAll(
+                                                        Constants.primaryColor,
+                                                      ),
+                                                    ),
+                                                    onPressed: () async {
+                                                      if (controller
+                                                          .groupModelList
+                                                          .isEmpty) {
+                                                        await controller
+                                                            .getAllGroups();
+                                                      }
+                                                      Get.dialog(
+                                                        AssignStudentCourseScreen(
+                                                          selectedStudentsList: [
+                                                            controller
+                                                                    .filteredStudentModelList[
+                                                                index]
+                                                          ],
+                                                          groupCoursesList:
+                                                              controller
+                                                                  .groupModelList,
+                                                          studentsList: controller
+                                                              .studentModelList,
+                                                        ),
+                                                      );
+                                                    },
+                                                    icon: const Icon(
+                                                      Icons.add,
+                                                      color: Colors.white,
+                                                    ),
+                                                    label: const Text(
+                                                      "Assign",
+                                                      style: TextStyle(
+                                                          color: Colors.white),
+                                                    ))),
+                                                DataCell(
+                                                  ElevatedButton.icon(
+                                                    style: ButtonStyle(
+                                                      side: MaterialStatePropertyAll(
+                                                          BorderSide(
+                                                              color: Constants
+                                                                  .secondaryColor)),
+                                                      shape:
+                                                          MaterialStatePropertyAll(
+                                                        RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(20),
+                                                        ),
+                                                      ),
+                                                      backgroundColor:
+                                                          MaterialStatePropertyAll(
+                                                        Constants.primaryColor,
+                                                      ),
+                                                    ),
+                                                    onPressed: () {
+                                                      Get.defaultDialog(
+                                                        confirmTextColor:
+                                                            Colors.white,
+                                                        title: "Student Groups",
+                                                        titleStyle: TextStyle(
+                                                            color: Constants
+                                                                .primaryColor,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                        onConfirm: () {
+                                                          Get.back();
+                                                        },
+                                                        content: Container(
+                                                          alignment:
+                                                              Alignment.center,
+                                                          width: 400,
+                                                          height: 300,
+                                                          child: controller
+                                                                  .filteredStudentModelList[
+                                                                      index]
+                                                                  .groupCourse!
+                                                                  .isEmpty
+                                                              ? const Center(
+                                                                  child: Text(
+                                                                      "No Group Available",
+                                                                      style: TextStyle(
+                                                                          color: Colors
+                                                                              .red,
+                                                                          fontWeight:
+                                                                              FontWeight.bold)),
+                                                                )
+                                                              : ListView
+                                                                  .builder(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .all(5),
+                                                                  itemCount: controller
+                                                                      .filteredStudentModelList[
+                                                                          index]
+                                                                      .groupCourse
+                                                                      ?.length,
+                                                                  itemBuilder:
+                                                                      (context,
+                                                                          listIndex) {
+                                                                    return ListTile(
+                                                                      title: Text(
+                                                                          "(${controller.filteredStudentModelList[index].groupCourse![listIndex].groupId.toString()}) ${controller.filteredStudentModelList[index].groupCourse![listIndex].groupName.toString()}"),
+                                                                    );
+                                                                  },
+                                                                ),
+                                                        ),
+                                                      );
+                                                    },
+                                                    icon: const Icon(
+                                                      Icons.add,
+                                                      color: Colors.white,
+                                                    ),
+                                                    label: const Text(
+                                                      "View Groups",
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
                                               ]);
                                             }),
                                           ),
